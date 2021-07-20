@@ -4,16 +4,17 @@ import Vuex, { Store } from 'vuex'
 Vue.use(Vuex)
 
 export default new Vuex.Store({
-  state: {
-    name: 'Boris'
-  },
-  mutations: {
-    changeName(state, count) {
-      state.name += ` ${count}`
-    }
-  },
-  actions: {
-  },
-  modules: {
-  }
+	state: {
+		email: ''
+	},
+	mutations: {
+		changeEmail(state, email) {
+			state.email = email
+			localStorage.setItem('user_email', email)
+		}
+	},
+	actions: {
+	},
+	modules: {
+	}
 })
