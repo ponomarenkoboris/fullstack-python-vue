@@ -3,6 +3,7 @@ venv
 .DS_Store
 node_modules
 db.sqlite3
+fullstack_dj_app.sqlite3
 /dist
 
 .env.local
@@ -14,7 +15,7 @@ yarn-error.log*
 pnpm-debug.log*
 
 .vscode
-*.suo
+*.suogit 
 *.ntvs*
 *.njsproj
 *.sln
