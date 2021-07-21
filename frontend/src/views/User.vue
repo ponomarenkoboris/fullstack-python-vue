@@ -3,7 +3,6 @@
         <h1>This is user panel</h1>
         <Quiz />
         <FullStatistic />
-        <ActiveQuiz />
     </v-container>
 </template>
 <script>

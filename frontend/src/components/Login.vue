@@ -33,6 +33,8 @@
     </v-row>
 </template>
 <script>
+import axios from 'axios'
+import { SERVER_URL, endpoints } from '../utils'
 export default {
     name: 'Login',
     props: {
@@ -44,10 +46,18 @@ export default {
         userPassword: ''
     }),
     methods: {
-        login() {
+        async login() {
             if (this.$props.usage === 'user') {
                 // TODO login as user
-                this.$router.push('/user')
+                const config = {
+                    email: this.userEmail,
+                    password: this.userPassword
+                }
+                const response = await axios.post(SERVER_URL + endpoints.loginUser, config)
+                if (response.data['jwt']) {
+                    document.cookie = `jwt=${response.data['jwt']}`
+                    this.$router.push('/user')
+                }
             } else {
                 // TODO login as admin
                 this.$router.push('/admin')
