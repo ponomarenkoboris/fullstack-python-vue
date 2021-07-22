@@ -1,20 +1,63 @@
 <template>
-    <v-container>
-        <h1>This is user panel</h1>
-        <Quiz />
-        <FullStatistic />
+    <v-container class="m-4">
+        <v-card class="mb-6">
+            <v-card-title>
+                <h1>Quiz</h1>
+            </v-card-title>
+            <v-expansion-panels focusable>
+                <v-expansion-panel :class="idx !== quizList.length - 1 && 'mb-2'" v-for="(quiz, idx) in quizList" :key="quiz.id" :disabled="quiz.done">
+                    <v-expansion-panel-header class="d-flex justify-space-between">
+                        <div max-width="300px">
+                            {{ quiz.name }}
+                        </div>
+                        <div max-width="300px">
+                            {{ quiz.complite }}
+                        </div>
+                    </v-expansion-panel-header>
+                    <v-expansion-panel-content>
+                        <div class="mb-6">
+                            {{ quiz.decription }}
+                        </div>
+                        <ActiveQuiz :quiz="quiz" :index="idx"/>
+                    </v-expansion-panel-content>
+                </v-expansion-panel>
+            </v-expansion-panels>
+        </v-card>
     </v-container>
 </template>
 <script>
-import Quiz from '../components/Quiz.vue'
-import FullStatistic from '../components/FullStatistic.vue'
+import axios from 'axios'
+import { SERVER_URL, endpoints } from '../utils'
 import ActiveQuiz from '../components/ActiveQuiz.vue'
 export default {
-    name: 'User',
+    name: 'QuizPanel',
     components: {
-        Quiz,
-        FullStatistic,
         ActiveQuiz
-    }
+    },
+    computed: {
+        quizList() {
+            return this.$store.state.quizList
+        }
+    },
+    methods: {
+        async getQuizList() {
+            try {
+                const response = await axios.get(SERVER_URL + endpoints.allQuiz)
+                const quizList = await response.data
+                this.getQuizList = quizList
+            } catch (error) {
+                
+            }
+        },
+        async checkTocken(){
+            try {
+                const response = await axios.get(SERVER_URL + endpoints.checkToken, { withCredentials: true }) // withCredentials: true отпраляет куки
+                console.log('response.data', response.data);
+            } catch (e) {}
+        }
+    },
+    // mounted() {
+    //     this.getQuizList()
+    // },
 }
 </script>

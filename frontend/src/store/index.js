@@ -1,16 +1,16 @@
 import Vue from 'vue'
 import Vuex, { Store } from 'vuex'
+import { quizList } from '../testData.js'
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
 	state: {
-		email: ''
+		quizList: quizList
 	},
 	mutations: {
-		changeEmail(state, email) {
-			state.email = email
-			localStorage.setItem('user_email', email)
+		writeAnswer(state, { quizIndex, question, answer }) {
+			state.quizList[quizIndex].questions.forEach(quest => { if (quest.id === question.id) quest.answer = answer })
 		}
 	},
 	actions: {
