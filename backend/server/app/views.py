@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
 from .models import User
-from .serializers import UserSerializer
+from .serializers import UserSerializer, QuizSerializer
 import jwt, datetime
 
 # Регистрация пользователя
@@ -62,7 +62,7 @@ class UserView(APIView):
 
 # Выход из приложения
 class LogoutView(APIView):
-    def post(self, request):
+    def post(self):
         response = Response()
         response.delete_cookie('jwt')
         response.data = {
@@ -70,3 +70,21 @@ class LogoutView(APIView):
         }
 
         return response
+
+# Создание опроса
+# class CreateQuizView(APIView):
+#     def post(self, request):
+#         serializer = QuizSerializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+#         serializer.save()
+#         return Response({
+#             'message': 'Quiz was successfully created'
+#         })
+
+# Получение статистикик
+# class StatisticLisView(APIView):
+#     def get(self):
+#         statistic_list = Quiz.objects.all()
+#         return Response({
+#             'statistic': statistic_list
+#         })

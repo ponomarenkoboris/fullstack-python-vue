@@ -6,7 +6,8 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
 	state: {
-		quizList: quizList
+		quizList: quizList,
+		statisticList: ['dldld', 'statistic', 'statistic']
 	},
 	mutations: {
 		writeAnswer(state, { quizIndex, question, answer }) {

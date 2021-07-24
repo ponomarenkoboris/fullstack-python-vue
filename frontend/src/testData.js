@@ -10,6 +10,7 @@ export const quizList = [
             {
                 id: 1,
                 question: 'fjdfoisi idjsif?',
+                multiple: true,
                 variants: [
                     {
                         id: 1,
@@ -28,41 +29,47 @@ export const quizList = [
                         answer: 'gfjfjfj'
                     }
                 ],
-                answer: []
+                answer: null
             },
             {
                 id: 2,
                 question: 'lllllllllllllllllllll?',
-                variants: null,
-                answer: ''
+                variants: [],
+                multiple: false,
+                answer: null
             },
             {
                 id: 3,
                 question: 'ddddddddddddddd?',
-                variants: null,
-                answer: ''
+                variants: [],
+                multiple: false,
+                answer: null
             },
             {
                 id: 4,
                 question: 'ccccccccccccccccccc?',
-                variants: null,
-                answer: ''
+                variants: [],
+                multiple: false,
+                answer: null
             },
             {
                 id: 5,
                 question: 'xxxxxxxxxxxxxxxx',
-                variants: null,
-                answer: ''
+                variants: [],
+                multiple: false,
+                answer: null
             },
             {
                 id: 6,
                 question: 'eeeeeeeeeeeeeee',
-                variants: null,
-                answer: ''
+                variants: [],
+                multiple: false,
+                answer: null
             },
             {
                 id: 7,
                 question: 'rrrrrrrrrrrrrrrrrrrrrrr?',
+                multiple: true,
                 variants: [
                     {
                         id: 1,
@@ -85,20 +92,23 @@ export const quizList = [
             {
                 id: 8,
                 question: 'tttttttttttttttttt?',
-                variants: null,
-                answer: ''
+                variants: [],
+                multiple: false,
+                answer: null
             },
             {
                 id: 9,
                 question: 'jjjjjjjjjjjjjjjjjjjjj?',
-                variants: null,
-                answer: ''
+                variants: [],
+                multiple: false,
+                answer: null
             },
             {
                 id: 10,
                 question: 'last question in quiz?',
-                variants: null,
-                answer: ''
+                variants: [],
+                multiple: false,
+                answer: null
             },
         ]
     },

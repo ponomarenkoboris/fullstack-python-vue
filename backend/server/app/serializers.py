@@ -17,3 +17,18 @@ class UserSerializer(serializers.ModelSerializer):
             instance.set_password(password)
         instance.save()
         return instance
+
+# class QuizSerializer(serializers.ModelSerializer):
+#     class MetaL:
+#         # model = Quiz
+#         fields = ['id', 'name', 'description', 'questions']
+#
+#     def create(self, validated_data):
+#         instance = self.Meta.model(**validated_data)
+#         instance.save()
+#         return instance
+
+# class StatisticSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         # model = Statistic
+#         # fields = ['id', '']
