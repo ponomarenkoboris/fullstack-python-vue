@@ -1,19 +1,19 @@
-# frontend
+# Проект для создания опросов [Frontend]
 
-## Project setup
+## Скачивание папки проекта из репозитория 
+```
+git clone https://github.com/ponomarenkoboris/fullstack-python-vue.git
+```
+
+## Установка зависимостей
 ```
 yarn install
 ```
-
-### Compiles and hot-reloads for development
+## Запуск на локальном сервере
 ```
 yarn serve
 ```
-
-### Compiles and minifies for production
+## Создание папки dist
 ```
 yarn build
 ```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).

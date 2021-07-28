@@ -20,7 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-u27!0itz%##^$+dl^_-d_fip@ghp+zs&q@x$!o7-*281$l#3y6'
+SECRET_KEY = 'django-insecure-p_piq*=31r$26@t7b#=2fknvzt!!oq6b2-3h7()vsld74jf4b-'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'rest_framework',
-    'app'
+    'quizapi'
 ]
 
 MIDDLEWARE = [
@@ -80,9 +80,7 @@ WSGI_APPLICATION = 'server.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'fullstack_dj_app.sqlite3',
-        'USER': 'root',
-        'PASSWORD': 'rootroot'
+        'NAME': BASE_DIR / 'quizDB.sqlite3',
     }
 }
 
@@ -130,7 +128,5 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-AUTH_USER_MODEL = 'app.User'
-
-CORS_ORIGIN_ALLOW_ALL = True #
-CORS_ALLOW_CREDENTIALS = True # Allow use cookies
+# CORS
+CORS_ORIGIN_ALLOW_ALL = True

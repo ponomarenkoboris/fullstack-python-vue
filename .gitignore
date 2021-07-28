@@ -3,6 +3,7 @@ venv
 .DS_Store
 node_modules
 db.sqlite3
+quizDB.sqlite3
 fullstack_dj_app.sqlite3
 /dist
 

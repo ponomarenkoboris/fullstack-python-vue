@@ -34,30 +34,21 @@ export default {
     components: {
         ActiveQuiz
     },
-    computed: {
-        quizList() {
-            return this.$store.state.quizList
-        }
-    },
+    data: () => ({
+        quizList: []
+    }),
     methods: {
         async getQuizList() {
             try {
-                const response = await axios.get(SERVER_URL + endpoints.allQuiz)
-                const quizList = await response.data
-                this.getQuizList = quizList
+                const response = await axios.get(SERVER_URL + endpoints.quizList)
+                this.quizList =  response.data
             } catch (error) {
-                
+                console.error(error)
             }
         },
-        async checkTocken(){
-            try {
-                const response = await axios.get(SERVER_URL + endpoints.checkToken, { withCredentials: true }) // withCredentials: true отпраляет куки
-                console.log('response.data', response.data);
-            } catch (e) {}
-        }
     },
-    // mounted() {
-    //     this.getQuizList()
-    // },
+    mounted(){
+        this.getQuizList()
+    }
 }
 </script>
