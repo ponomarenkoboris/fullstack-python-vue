@@ -42,6 +42,9 @@ export default {
             try {
                 const response = await axios.get(SERVER_URL + endpoints.quizList)
                 this.quizList =  response.data
+                this.quizList.forEach(quiz => {
+                    quiz.questions.forEach(question => { if (question.multiple) question.answer = [] })
+                })
             } catch (error) {
                 console.error(error)
             }

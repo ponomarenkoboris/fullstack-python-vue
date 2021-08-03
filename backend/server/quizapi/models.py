@@ -1,5 +1,14 @@
 from django.db import models
 
+
+# TODO доделать модель пользователя и пользовательских ответов
+
+class User():
+    pass
+
+class UserAnswers(models.Model):
+    pass
+
 class Quiz(models.Model):
     name = models.CharField(max_length=250)
     description = models.TextField()

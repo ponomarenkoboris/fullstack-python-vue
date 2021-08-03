@@ -10,7 +10,7 @@
                     <v-divider v-if="questionObj.id !== 1" class="mb-6 mt-6"></v-divider>
                     <v-text-field v-model="questionObj.question" label="Вопрос:"></v-text-field>
 
-                    <!-- TODO styles and complete multiple answer logic -->
+                    <!-- TODO styles and complete multiple answer logic changing on single answer question -->
 
                     <v-radio-group v-model="questionObj.multiple">
                         <v-radio label="Один ответ" :value="false"></v-radio>
@@ -20,33 +20,38 @@
                     <!-- If one answer -->
                     <v-container v-if="!questionObj.multiple">
                         <v-radio-group v-model="questionObj.answer">
-                            <v-container v-for="variant in questionObj.variants" class="d-flex align-center justify-space-between">
+                            <v-container v-for="variant in questionObj.variants" class="d-flex align-center">
                                 <div class="mr-6">
-                                    <v-radio :label="variant.answer"></v-radio>
+                                    <v-radio
+                                        v-model="variant.variant"
+                                        :disabled="!variant.variant.trim()"
+                                    ></v-radio>
                                 </div>
                                 <div width="500">
-                                    <v-text-field v-model="variant.answer"></v-text-field>
+                                    <v-text-field v-model="variant.variant"></v-text-field>
                                 </div>
                             </v-container>
                         </v-radio-group>
-                        <v-btn @click="() => questionObj.variants.push({ id: questionObj.variants.length + 1, answer: '' })">Добавить вариант овтета</v-btn>
                     </v-container>
 
                     <!-- If multiple answer options -->
                     <v-container v-else>
                         <v-container v-for="variant in questionObj.variants" :key="variant.id" class="d-flex align-center">
-                            <v-checkbox :label="variant.answer"></v-checkbox>
-                            <v-text-field v-model="variant.answer"></v-text-field>
+                            <v-checkbox
+                                v-model="questionObj.answer"
+                                :value="variant"
+                            ></v-checkbox>
+                            <v-text-field v-model="variant.variant"></v-text-field>
                         </v-container>
-                        <v-btn @click="() => questionObj.variants.push({ id: questionObj.variants.length + 1, answer: '' })">Добавить вариант ответа</v-btn>
+                        <h1>{{ questionObj.answer }}</h1>
                     </v-container>
+                    <v-btn @click="() => questionObj.variants.push({ id: questionObj.variants.length + 1, variant: '' })">Добавить вариант ответа</v-btn>
                 </div>
             </form>
             <v-btn @click="addQuestion">Добавить вопрос</v-btn>
         </v-container>
         <v-divider class="mb-6 mt-6"></v-divider>
         <v-container class="d-flex justify-center">
-            <v-btn @click="saveQuiz" class="mr-6">Сохранить</v-btn>
             <v-btn @click="publishQuiz" color="light-green accent-2">Опубликовать</v-btn>
         </v-container>
     </v-container>
@@ -78,16 +83,12 @@ export default {
                 question: '',
                 multiple: false,
                 variants: [],
-                answer: null
-            })
-        },
-        saveQuiz() {
-            Object.keys(this.quiz).forEach(key => {
-                console.log('this.quiz[key]', this.quiz[key]);
+                answer: []
             })
         },
         publishQuiz() {
-            this.saveQuiz()
+            const quiz = JSON.parse(JSON.stringify(this.quiz))
+            console.log(quiz)
             // axios.post(SERVER_URL + endpoints.createQuiz, {
             //     // TODO add logic
             // })
