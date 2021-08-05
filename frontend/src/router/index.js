@@ -1,10 +1,6 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Main from '../views/Main.vue'
-import Admin from '../views/Admin.vue'
-import User from '../views/User.vue'
-import QuizMaker from '../components/QuizMaker.vue'
-import Statistic from '../components/Statistic.vue'
 
 Vue.use(VueRouter)
 
@@ -17,22 +13,22 @@ const routes = [
 	{
 		path: '/user',
 		name: 'User',
-		component: User
+		component: () => import(/* webpackChunkName: "user" */'../views/User.vue')
 	},
 	{
 		path: '/admin',
 		name: 'Admin',
-		component: Admin,
+		component: () => import(/* webpackChunkName: "admin" */'../views/Admin.vue'),
 		children: [
 			{
 				path: 'quiz-maker',
 				name: 'QuizMaker',
-				component: QuizMaker
+				component: () => import(/* webpackChunkName: "admin/quizmaker" */'../components/QuizMaker.vue')
 			},
 			{
 				path: 'full-statistic',
 				name: 'Statistic',
-				component: Statistic
+				component: () => import(/* webpackChunkName: "admin/statistic" */'../components/Statistic.vue')
 			}
 		]
 	},

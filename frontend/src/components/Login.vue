@@ -14,10 +14,10 @@
                     <v-container>
                         <v-row>
                             <v-col cols="12">
-                                <v-text-field label="Email*" required v-model="userEmail"></v-text-field>
+                                <v-text-field label="Email*" required v-model="email"></v-text-field>
                             </v-col>
                             <v-col cols="12">
-                                <v-text-field label="Password*" type="password" required v-model="userPassword"></v-text-field>
+                                <v-text-field label="Password*" type="password" required v-model="password"></v-text-field>
                             </v-col>
                         </v-row>
                     </v-container>
@@ -25,8 +25,8 @@
                 </v-card-text>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="blue darken-1" text @click="dialog = false">Close</v-btn>
-                    <v-btn color="blue darken-1" text @click="login">Save</v-btn>
+                    <v-btn color="blue darken-1" text @click="closeModal">Close</v-btn>
+                    <v-btn color="blue darken-1" text @click="login">Login</v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
@@ -42,20 +42,28 @@ export default {
     },
     data: () => ({
         dialog: false,
-        userEmail: '',
-        userPassword: ''
+        email: '',
+        password: ''
     }),
     methods: {
+        closeModal() {
+            this.dialog = false
+            this.email = ''
+            this.password = ''
+        },
         async login() {
             if (this.$props.usage === 'user') {
                 // TODO login as user
                 const config = {
-                    email: this.userEmail,
-                    password: this.userPassword
+                    email: this.email,
+                    password: this.password
                 }
                 const response = await axios.post(SERVER_URL + endpoints.loginUser, config)
                 if (response.data['jwt']) {
-                    document.cookie = `jwt=${response.data['jwt']}`
+                    localStorage.setItem('user_email', response.data['email'])
+                    localStorage.setItem('user_name', response.data['name'])
+                    localStorage.setItem('user_surname', response.data['surname'])
+                    document.cookie = `jwt=${response.data['jwt']};`
                     this.$router.push('/user')
                 }
             } else {

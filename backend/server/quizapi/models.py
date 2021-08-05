@@ -1,13 +1,18 @@
 from django.db import models
-
+from django.contrib.auth.models import AbstractUser
 
 # TODO доделать модель пользователя и пользовательских ответов
 
-class User():
-    pass
+class User(AbstractUser):
+    username = None
+    email = models.EmailField(unique=True, max_length=255)
+    password = models.TextField()
+    name = models.CharField(max_length=255)
+    surname = models.CharField(max_length=255)
+    # TODO add user avatar
 
-class UserAnswers(models.Model):
-    pass
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
 
 class Quiz(models.Model):
     name = models.CharField(max_length=250)

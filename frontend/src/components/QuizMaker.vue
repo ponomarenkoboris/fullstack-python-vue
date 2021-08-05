@@ -4,50 +4,79 @@
         <v-text-field label="Описание опроса" :rules="rules" v-model="quiz.description"></v-text-field>
         <v-divider class="mb-6 mt-6"></v-divider>
         <v-container>
-            <h1>Вопросы</h1>
-            <form>
-                <div v-for="questionObj in quiz.questions" :key="questionObj.id">
-                    <v-divider v-if="questionObj.id !== 1" class="mb-6 mt-6"></v-divider>
+            <h1>Колличество вопросов: {{ quiz.questions.length }}</h1>
+            <div v-for="questionObj in quiz.questions" :key="questionObj.id">
+                <v-divider v-if="questionObj.id !== 1" class="mb-6 mt-6"></v-divider>
+                <div class="d-flex">
                     <v-text-field v-model="questionObj.question" label="Вопрос:"></v-text-field>
+                    <v-hover>
+                        <v-icon
+                            @click="removeQuestion(questionObj.id)"
+                        >{{ trashIcon }}</v-icon>
+                    </v-hover>
+                </div>
 
-                    <!-- TODO styles and complete multiple answer logic changing on single answer question -->
+                <!-- TODO styles -->
 
-                    <v-radio-group v-model="questionObj.multiple">
+                <div class="d-flex justify-center">
+                    <v-radio-group
+                        v-model="questionObj.multiple"
+                        row
+                        @change="() => questionObj.multiple ? questionObj.answer = [] : questionObj.answer = ''"
+                    >
                         <v-radio label="Один ответ" :value="false"></v-radio>
                         <v-radio label="Несколько ответов" :value="true"></v-radio>
                     </v-radio-group>
-
-                    <!-- If one answer -->
-                    <v-container v-if="!questionObj.multiple">
-                        <v-radio-group v-model="questionObj.answer">
-                            <v-container v-for="variant in questionObj.variants" class="d-flex align-center">
-                                <div class="mr-6">
-                                    <v-radio
-                                        v-model="variant.variant"
-                                        :disabled="!variant.variant.trim()"
-                                    ></v-radio>
-                                </div>
-                                <div width="500">
-                                    <v-text-field v-model="variant.variant"></v-text-field>
-                                </div>
-                            </v-container>
-                        </v-radio-group>
-                    </v-container>
-
-                    <!-- If multiple answer options -->
-                    <v-container v-else>
-                        <v-container v-for="variant in questionObj.variants" :key="variant.id" class="d-flex align-center">
-                            <v-checkbox
-                                v-model="questionObj.answer"
-                                :value="variant"
-                            ></v-checkbox>
-                            <v-text-field v-model="variant.variant"></v-text-field>
-                        </v-container>
-                        <h1>{{ questionObj.answer }}</h1>
-                    </v-container>
-                    <v-btn @click="() => questionObj.variants.push({ id: questionObj.variants.length + 1, variant: '' })">Добавить вариант ответа</v-btn>
                 </div>
-            </form>
+
+                <!-- If one answer -->
+                <v-container v-if="!questionObj.multiple" class="d-flex justify-center">
+                    <v-radio-group v-model="questionObj.answer">
+                        <v-container v-for="variant in questionObj.variants" class="d-flex align-center">
+                            <div class="mr-6">
+                                <v-radio
+                                    v-model="variant.variant"
+                                    :disabled="!variant.variant.trim()"
+                                ></v-radio>
+                            </div>
+                            <div width="500">
+                                <v-text-field v-model="variant.variant"></v-text-field>
+                            </div>
+                            <v-hover>
+                                <v-icon
+                                    @click="removeVariant(questionObj.id, variant.id)"
+                                >{{ removeVariantIcon }}</v-icon>
+                            </v-hover>
+                        </v-container>
+                    </v-radio-group>
+                    <h1>{{ questionObj.answer }}</h1>
+                </v-container>
+
+                <!-- If multiple answer -->
+                <v-container v-else>
+                    <v-container v-for="variant in questionObj.variants" :key="variant.id" class="d-flex justify-center">
+                        <v-checkbox
+                            v-model="questionObj.answer"
+                            :value="variant"
+                            :disabled="!variant.variant.trim()"
+                        ></v-checkbox>
+                        <div width="500px">
+                            <v-text-field v-model="variant.variant"></v-text-field>
+                        </div>
+                        <v-hover>
+                            <v-icon
+                                @click="removeVariant(questionObj.id, variant.id)"
+                            >{{ removeVariantIcon }}</v-icon>
+                        </v-hover>
+                    </v-container>
+                    <h1>{{ questionObj.answer }}</h1>
+                </v-container>
+                <div class="d-flex justify-center">
+                    <v-btn
+                        @click="() => questionObj.variants.push({ id: questionObj.variants.length + 1, variant: '' })"
+                    >Добавить вариант ответа</v-btn>
+                </div>
+            </div>
             <v-btn @click="addQuestion">Добавить вопрос</v-btn>
         </v-container>
         <v-divider class="mb-6 mt-6"></v-divider>
@@ -57,6 +86,8 @@
     </v-container>
 </template>
 <script>
+import { mdiDelete } from '@mdi/js';
+import { mdiClose } from '@mdi/js';
 import { axios } from 'axios'
 import { SERVER_URL, endpoints } from "../utils";
 
@@ -74,6 +105,8 @@ export default {
             questions: []
         },
         checkboxValue: '',
+        trashIcon: mdiDelete,
+        removeVariantIcon: mdiClose
     }),
     methods: {
         addQuestion() {
@@ -93,6 +126,16 @@ export default {
             //     // TODO add logic
             // })
             console.log('publishing quiz...');
+        },
+        removeQuestion(questionId) {
+            this.quiz.questions = this.quiz.questions.filter(question => question.id !== questionId)
+        },
+        removeVariant(questionId, variantId) {
+            this.quiz.questions.forEach(question => {
+                if (question.id === questionId) {
+                    question.variants = question.variants.filter(variant => variant.id !== variantId)
+                }
+            })
         }
     }
 }
