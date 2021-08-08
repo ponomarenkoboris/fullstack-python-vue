@@ -17,6 +17,17 @@
 				<v-card-title class="d-flex justify-center">
 					Вопрос: {{ quiz.questions[paginationController - 1].question }}
 				</v-card-title>
+                <div
+                    v-if="quiz.questions[paginationController - 1].question_photo"
+                    class="d-flex justify-center"
+                >
+                    <img
+                        :src="quiz.questions[paginationController - 1].question_photo"
+                        :alt="quiz.questions[paginationController - 1].question"
+                        width="auto"
+                        height="250px"
+                    >
+                </div>
                 <div v-if="!quiz.questions[paginationController - 1].multiple" class="d-flex justify-center">
                     <v-radio-group v-model="quiz.questions[paginationController - 1].answer">
                         <v-radio
@@ -33,7 +44,7 @@
                             v-for="variant in quiz.questions[paginationController - 1].variants"
                             :key="variant.id"
                             :label="variant.variant"
-                            :input-value="quiz.questions[paginationController - 1].answer.find(val => val === variant.variant)"
+                            :input-value="quiz.questions[paginationController - 1].variants.find(val => val === variant.variant)"
                             @click="toggleMultipleAnswer(variant.variant)"
                         ></v-checkbox>
                     </div>

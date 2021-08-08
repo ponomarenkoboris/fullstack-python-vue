@@ -2,9 +2,11 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework import status
-from .models import Quiz, User
+from .models import Quiz, User, Question
 from . import serializers
 import datetime, jwt
+
+# TODO add jwt token checking for all routes
 
 class QuizCreateView(APIView):
     def post(self, request):
@@ -37,9 +39,29 @@ class QuizListView(APIView):
 
         return Response(serialized_quiz_copy)
 
+class QuestionListView(APIView):
+    # TODO this logic can be done only if request was made by manager also create api for making questions groups
+
+    def get(self, request):
+        # token = request.COOKIES.get('jwt')
+        # payload = jwt.decode(token, 'secret', algorithms=['HS256'])
+        #
+        # if payload['status'] != 'manager':
+        #     return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
+
+        questions_list = Question.objects.all()
+        serialized_questions = serializers.QuestionSerializer(questions_list, many=True)
+        return Response(status=status.HTTP_200_OK, data=serialized_questions.data)
 
 class CheckingUserAnswersView(APIView):
     def post(self, request):
+        auth_token = request.COOKIES.get('jwt')
+
+        payload = jwt.decode(auth_token, 'secret', algorithms=['HS256'])
+
+        if not payload['status'] or payload['status'] != 'user':
+           return Response(status=status.HTTP_401_UNAUTHORIZED, data={'Incorrect authorization'})
+
         quiz = Quiz.objects.filter(id=request.data.pop('quizId')).first()
         serialized_quiz = serializers.QuizSerializer(quiz, many=True)
         needed_quiz = list(serialized_quiz.data).copy()
@@ -60,6 +82,7 @@ class LoginView(APIView):
     def post(self, request):
         email = request.data['email']
         password = request.data['password']
+        is_manager = request.data['is_manager']
 
         user = User.objects.filter(email=email).first()
 
@@ -69,10 +92,14 @@ class LoginView(APIView):
         if not user.check_password(password):
             raise AuthenticationFailed('Incorrect password')
 
+        if user.is_manager != is_manager:
+            raise AuthenticationFailed('Incorrect authentication status')
+
         payload = {
             'id': user.id,
             'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60),
-            'iat': datetime.datetime.utcnow()
+            'iat': datetime.datetime.utcnow(),
+            'status': user.is_manager
         }
 
         token = jwt.encode(payload, 'secret', algorithm='HS256')

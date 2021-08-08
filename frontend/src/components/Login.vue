@@ -52,23 +52,20 @@ export default {
             this.password = ''
         },
         async login() {
-            if (this.$props.usage === 'user') {
-                // TODO login as user
-                const config = {
-                    email: this.email,
-                    password: this.password
-                }
-                const response = await axios.post(SERVER_URL + endpoints.loginUser, config)
-                if (response.data['jwt']) {
-                    localStorage.setItem('user_email', response.data['email'])
-                    localStorage.setItem('user_name', response.data['name'])
-                    localStorage.setItem('user_surname', response.data['surname'])
-                    document.cookie = `jwt=${response.data['jwt']};`
-                    this.$router.push('/user')
-                }
-            } else {
-                // TODO login as admin
-                this.$router.push('/admin')
+            const isManager = this.$props.usage === 'user'
+            const requestConfig = {
+                email: this.email,
+                password: this.password,
+                is_manager: isManager
+            }
+            const response = await axios.post(SERVER_URL + endpoints.loginUser, requestConfig)
+            if (response.data['jwt']) {
+                const userAuthStatus = isManager ? 'manager' : 'user'
+                localStorage.setItem(`${userAuthStatus}_email`, response.data['email'])
+                localStorage.setItem(`${userAuthStatus}_name`, response.data['name'])
+                localStorage.setItem(`${userAuthStatus}_surname`, response.data['surname'])
+                document.cookie = `jwt=${response.data['jwt']};`
+                this.$router.push(`/${isManager ? 'user' : 'admin'}`)
             }
             this.dialog = false
         }

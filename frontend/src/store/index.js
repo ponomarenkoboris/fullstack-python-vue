@@ -1,12 +1,10 @@
 import Vue from 'vue'
 import Vuex, { Store } from 'vuex'
-import { quizList } from '../testData.js'
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
 	state: {
-		quizList: quizList,
 		statisticList: ['dldld', 'statistic', 'statistic']
 	},
 	mutations: {

@@ -21,14 +21,19 @@ const routes = [
 		component: () => import(/* webpackChunkName: "admin" */'../views/Admin.vue'),
 		children: [
 			{
-				path: 'quiz-maker',
+				path: 'quiz-maker/',
 				name: 'QuizMaker',
-				component: () => import(/* webpackChunkName: "admin/quizmaker" */'../components/QuizMaker.vue')
+				component: () => import(/* webpackChunkName: "admin/quiz-maker" */'../components/QuizMaker.vue')
 			},
 			{
-				path: 'full-statistic',
+				path: 'full-statistic/',
 				name: 'Statistic',
 				component: () => import(/* webpackChunkName: "admin/statistic" */'../components/Statistic.vue')
+			},
+			{
+				path: 'questions-groups/',
+				name: 'QuestionGroups',
+				component: () => import(/* webpackChunkName: "admin/questions-groups" */'../components/QuestionsGroups.vue')
 			}
 		]
 	},

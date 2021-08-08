@@ -3,12 +3,15 @@
         <v-container class="d-flex justify-space-between px-10">
             <h1>Quiz</h1>
             <div class="user__info">
-                <p>Name: <strong>{{ name }}</strong></p>
-                <p>Surname: <strong>{{ surname }}</strong></p>
+                <p>Имя: <strong>{{ name }}</strong></p>
+                <p>Фамилия: <strong>{{ surname }}</strong></p>
                 <p>email: <strong>{{ email }}</strong></p>
             </div>
         </v-container>
-        <div class="d-flex justify-center" v-if="!quizList.length">
+        <div
+            class="d-flex justify-center"
+            v-if="!quizList.length"
+        >
             <v-progress-circular
                 :size="70"
                 :width="7"
@@ -37,6 +40,7 @@
     </v-container>
 </template>
 <script>
+// TODO add message if quiz list is empty array
 import axios from 'axios'
 import { SERVER_URL, endpoints } from '../utils'
 import ActiveQuiz from '../components/ActiveQuiz.vue'
@@ -49,15 +53,16 @@ export default {
         quizList: []
     }),
     computed: {
-        name() { return localStorage.getItem('user_name') },
-        surname() { return localStorage.getItem('user_surname') },
-        email() { return localStorage.getItem('user_email') }
+        name: () => localStorage.getItem('user_name'),
+        surname: () => localStorage.getItem('user_surname'),
+        email: () => localStorage.getItem('user_email')
     },
     methods: {
         async getQuizList() {
             try {
                 const response = await axios.get(SERVER_URL + endpoints.quizList)
                 this.quizList =  response.data
+
             } catch (error) {
                 console.error(error)
             }

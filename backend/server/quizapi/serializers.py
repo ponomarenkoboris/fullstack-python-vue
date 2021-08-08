@@ -11,7 +11,7 @@ class QuestionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Question
-        fields = ['id', 'question', 'variants', 'answer', 'multiple']
+        fields = ['id', 'question', 'variants', 'answer', 'multiple', 'question_photo']
 
 class QuizSerializer(serializers.ModelSerializer):
     questions = QuestionSerializer(many=True)
@@ -36,9 +36,10 @@ class QuizSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'name', 'email', 'surname', 'password']
+        fields = ['id', 'name', 'email', 'surname', 'password', 'is_manager']
         extra_kwargs = {
-            'password': {'write_only': True}
+            'password': {'write_only': True},
+            'is_manager': {'write_only': True}
         }
 
     def create(self, validated_data):

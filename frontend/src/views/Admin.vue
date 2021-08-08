@@ -1,15 +1,27 @@
 <template>
     <v-container>
-        <v-tabs>
-            <v-tab to="/admin/full-statistic">
-                <p>Watch statistic</p>
-            </v-tab>
-            <v-tab to="/admin/quiz-maker">
-                <p>Create quiz</p>
-            </v-tab>
-        </v-tabs>
+        <v-container class="d-flex justify-space-between px-10">
+            <v-tabs>
+                <v-tab to="/admin/full-statistic/">
+                    <p>Просмотр статистики</p>
+                </v-tab>
+                <v-tab to="/admin/quiz-maker/">
+                    <p>Создание опроса</p>
+                </v-tab>
+                <v-tab to="/admin/questions-groups/">
+                    <p>Группы вопросов</p>
+                </v-tab>
+            </v-tabs>
+            <div class="manager__info">
+                <p>Имя: <strong>{{ name }}</strong></p>
+                <p>Фамилия: <strong>{{ surname }}</strong></p>
+                <p>email: <strong>{{ email }}</strong></p>
+            </div>
+        </v-container>
         <v-container>
-            <router-view></router-view>
+            <keep-alive>
+                <router-view></router-view>
+            </keep-alive>
         </v-container>
     </v-container>
 </template>
@@ -20,7 +32,15 @@ export default {
     components: {
         Statistic
     },
+    computed: {
+        name:() => localStorage.getItem('manager_name'),
+        surname:() => localStorage.getItem('manager_surname'),
+        email:() => localStorage.getItem('manager_email')
+    }
 }
 </script>
 <style scoped>
+.manager__info > p {
+    margin: 0
+}
 </style>
