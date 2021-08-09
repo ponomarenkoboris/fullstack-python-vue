@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
-# TODO модель группы вопросов
+# TODO доделать модель групп вопросов
 
 class User(AbstractUser):
     username = None
@@ -19,14 +19,14 @@ class Quiz(models.Model):
     description = models.TextField()
     date_created = models.DateTimeField(auto_now=True, db_index=True)
 
-# class QuestionGroup(models.Model):
-#     group_name = models.CharField(max_length=255)
-#     date_created = models.DateTimeField(auto_now=True, db_index=True)
+class QuestionGroup(models.Model):
+    group_name = models.CharField(max_length=255, unique=True)
+    date_created = models.DateTimeField(auto_now=True, db_index=True)
 
 class Question(models.Model):
-    quiz = models.ForeignKey(Quiz, related_name='questions', on_delete=models.CASCADE)
-    # question_group = models.ForeignKey(QuestionGroup, related_name='question group', on_delete=models.CASCADE)
+    quiz = models.ForeignKey(Quiz, related_name='questions', on_delete=models.CASCADE, null=True)
     question = models.CharField(max_length=250)
+    question_group = models.ForeignKey(QuestionGroup, related_name='questions', on_delete=models.CASCADE, null=True)
     multiple = models.BooleanField(default=False)
     question_photo = models.TextField(blank=True, default='')
     answer = models.TextField(blank=False)

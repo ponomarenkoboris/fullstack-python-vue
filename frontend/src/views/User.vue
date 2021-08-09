@@ -26,12 +26,12 @@
                         {{ quiz.name }}
                     </div>
                     <div max-width="300px">
-                        {{ quiz.complite }}
+                        {{ quiz.complete }}
                     </div>
                 </v-expansion-panel-header>
                 <v-expansion-panel-content>
                     <div class="mb-6">
-                        {{ quiz.decription }}
+                        {{ quiz.description }}
                     </div>
                     <ActiveQuiz :quiz="quiz" :index="idx"/>
                 </v-expansion-panel-content>

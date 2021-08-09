@@ -2,9 +2,20 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework import status
-from .models import Quiz, User, Question
+from .models import Quiz, User, Question, QuestionGroup
 from . import serializers
 import datetime, jwt
+
+# def check_manager_access(cookies = None):
+#     if cookies is None:
+#         return False
+#
+#     token = cookies.get('jwt')
+#     payload = jwt.decode(token, 'secret', algorithms=['HS256'])
+#
+#     if payload['status'] != 'manager':
+#         return False
+#     return True
 
 # TODO add jwt token checking for all routes
 
@@ -138,3 +149,26 @@ class LogoutView(APIView):
             'message': 'success'
         }
         return response
+
+#  Question group view
+class QuestionGroupView(APIView):
+    def get(self, request):
+        question_groups = QuestionGroup.objects.all()
+        serialized_groups = serializers.QuestionGroupSerializer(question_groups, many=True)
+        return Response(status=status.HTTP_200_OK, data=serialized_groups.data)
+
+    def post(self, request):
+        request_type = request.data.pop('update')
+        if request_type is True:
+            group_id = request.data.pop('id')
+            question_group = QuestionGroup.objects.filter(id=group_id).first()
+            serialized_group = serializers.QuestionGroupSerializer(instance=question_group, data=request.data)
+            serialized_group.is_valid(raise_exception=True)
+            serialized_group.save()
+            return Response(status=status.HTTP_200_OK, data={"message": "Success update", "group": serialized_group.data})
+
+        else:
+            serialized_group = serializers.QuestionGroupSerializer(data=request.data)
+            serialized_group.is_valid(raise_exception=True)
+            serialized_group.save()
+            return Response(status=status.HTTP_201_CREATED, data=serialized_group.data)

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Variant, Quiz, Question, User
+from .models import Variant, Quiz, Question, User, QuestionGroup
 
 class VariantSerializer(serializers.ModelSerializer):
     class Meta:
@@ -12,6 +12,32 @@ class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
         fields = ['id', 'question', 'variants', 'answer', 'multiple', 'question_photo']
+
+# Question group serializer
+class QuestionGroupSerializer(serializers.ModelSerializer):
+    questions = QuestionSerializer(many=True)
+
+    class Meta:
+        model = QuestionGroup
+        fields = ['id', 'group_name', 'date_created', 'questions']
+
+    def create(self, validated_data):
+        questions_data = validated_data.pop('questions')
+        group_instance = QuestionGroup.objects.create(**validated_data)
+
+        for question in questions_data:
+            variants_data = question.pop('variants')
+            question_instance = Question.objects.create(question_group=group_instance, **question)
+
+            for variant in variants_data:
+                Variant.objects.create(question=question_instance, **variant)
+
+        return group_instance
+
+    def update(self, instance, validated_data):
+        # TODO complete update method
+        pass
+#
 
 class QuizSerializer(serializers.ModelSerializer):
     questions = QuestionSerializer(many=True)
@@ -32,6 +58,7 @@ class QuizSerializer(serializers.ModelSerializer):
                 Variant.objects.create(question=question_instance, **variant)
 
         return quiz_instance
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
