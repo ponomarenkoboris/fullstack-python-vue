@@ -6,6 +6,7 @@ from .models import Quiz, User, Question, QuestionGroup
 from . import serializers
 import datetime, jwt
 
+# TODO add jwt token checking for all routes
 # def check_manager_access(cookies = None):
 #     if cookies is None:
 #         return False
@@ -17,10 +18,11 @@ import datetime, jwt
 #         return False
 #     return True
 
-# TODO add jwt token checking for all routes
-
-class QuizCreateView(APIView):
+class QuizView(APIView):
     def post(self, request):
+        """
+        Создание опроса
+        """
         serialized_quiz = serializers.QuizSerializer(data=request.data)
         if serialized_quiz.is_valid():
             serialized_quiz.save()
@@ -33,8 +35,10 @@ class QuizCreateView(APIView):
             "errors": serialized_quiz.errors
         })
 
-class QuizListView(APIView):
     def get(self, request):
+        """
+        Получение списка всех опросов
+        """
         quiz_list = Quiz.objects.all()
         serialized_quiz = serializers.QuizSerializer(quiz_list, many=True)
         serialized_quiz_copy = list(serialized_quiz.data).copy()
@@ -65,20 +69,21 @@ class QuestionListView(APIView):
         return Response(status=status.HTTP_200_OK, data=serialized_questions.data)
 
 class CheckingUserAnswersView(APIView):
+    """
+    Оцека ответов на опрос
+    """
     def post(self, request):
-        auth_token = request.COOKIES.get('jwt')
+        quiz_id = request.data.pop('quizId')
+        answers = request.data.pop('answers')
 
-        payload = jwt.decode(auth_token, 'secret', algorithms=['HS256'])
-
-        if not payload['status'] or payload['status'] != 'user':
-           return Response(status=status.HTTP_401_UNAUTHORIZED, data={'Incorrect authorization'})
-
-        quiz = Quiz.objects.filter(id=request.data.pop('quizId')).first()
-        serialized_quiz = serializers.QuizSerializer(quiz, many=True)
-        needed_quiz = list(serialized_quiz.data).copy()
-
-        # TODO сделать проверку ответов на вопросы
-        print(needed_quiz)
+        for answer in answers:
+            question_id = answer.pop('questionId')
+            question = Question.objects.all().filter(id=question_id).first()
+            serialized_question = serializers.QuestionSerializer(question)
+            # TODO поиск подстроки ответа пользователя в строке ответа на вопрос
+            # TODO формирование словаря
+            # { "id_вопроса": id, "question": вопрос, "user_answer": ответ_пользователя, "user_grade": баллы_за_вопрос, "max_grade": максимальный_балл }
+            pass
 
         return Response()
 
@@ -88,6 +93,22 @@ class RegisterView(APIView):
         new_user.is_valid(raise_exception=True)
         new_user.save()
         return Response(status=status.HTTP_201_CREATED, data=new_user.data)
+
+class UserView(APIView):
+    def get(self, request):
+        token = request.COOKIES.get('jwt')
+
+        if not token:
+            raise AuthenticationFailed('Unauthenticated')
+
+        try:
+           payload = jwt.decode(token, 'secret', algorithms=['HS256'])
+        except jwt.ExpiredSignatureError:
+            raise AuthenticationFailed('Unauthenticated')
+
+        user = User.objects.filter(id=payload['id']).first()
+        serialized_user = serializers.UserSerializer(user)
+        return Response(serialized_user.data)
 
 class LoginView(APIView):
     def post(self, request):
@@ -125,22 +146,6 @@ class LoginView(APIView):
         }
         return response
 
-class UserView(APIView):
-    def get(self, request):
-        token = request.COOKIES.get('jwt')
-
-        if not token:
-            raise AuthenticationFailed('Unauthenticated')
-
-        try:
-           payload = jwt.decode(token, 'secret', algorithms=['HS256'])
-        except jwt.ExpiredSignatureError:
-            raise AuthenticationFailed('Unauthenticated')
-
-        user = User.objects.filter(id=payload['id']).first()
-        serialized_user = serializers.UserSerializer(user)
-        return Response(serialized_user.data)
-
 class LogoutView(APIView):
     def post(self):
         response = Response()
@@ -150,25 +155,39 @@ class LogoutView(APIView):
         }
         return response
 
-#  Question group view
+# Question Group
 class QuestionGroupView(APIView):
     def get(self, request):
-        question_groups = QuestionGroup.objects.all()
-        serialized_groups = serializers.QuestionGroupSerializer(question_groups, many=True)
-        return Response(status=status.HTTP_200_OK, data=serialized_groups.data)
+        groups = QuestionGroup.objects.all()
+        serialized_groups = serializers.QuestionGroupSerializer(groups, many=True)
+        return Response(data=serialized_groups.data)
 
     def post(self, request):
-        request_type = request.data.pop('update')
-        if request_type is True:
-            group_id = request.data.pop('id')
-            question_group = QuestionGroup.objects.filter(id=group_id).first()
-            serialized_group = serializers.QuestionGroupSerializer(instance=question_group, data=request.data)
-            serialized_group.is_valid(raise_exception=True)
-            serialized_group.save()
-            return Response(status=status.HTTP_200_OK, data={"message": "Success update", "group": serialized_group.data})
+        """
+        Создание новой группы вопросов
+        """
+        new_group = serializers.QuestionGroupSerializer(data=request.data)
+        new_group.is_valid(raise_exception=True)
+        new_group.save()
+        return Response(status=status.HTTP_201_CREATED, data=new_group.data)
 
-        else:
-            serialized_group = serializers.QuestionGroupSerializer(data=request.data)
-            serialized_group.is_valid(raise_exception=True)
-            serialized_group.save()
-            return Response(status=status.HTTP_201_CREATED, data=serialized_group.data)
+    def put(self, request):
+        """
+        Добавление вопросов в группу
+        """
+        group_name = request.data['group_name']
+        group = QuestionGroup.objects.all().filter(group_name=group_name).first()
+        updated_group = serializers.QuestionGroupSerializer(instance=group, data=request.data)
+        updated_group.is_valid(raise_exception=True)
+        updated_group.save()
+
+        return Response(data=updated_group.data)
+
+    def delete(self, request):
+        """
+        Удаление группы вопросов
+        """
+        QuestionGroup.objects.filter(id=request.data.pop('group_id')).delete()
+        groups = QuestionGroup.objects.all()
+        serialized_group = serializers.QuestionGroupSerializer(groups, many=True)
+        return Response(data=serialized_group.data)

@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-
-# TODO доделать модель групп вопросов
+import datetime
 
 class User(AbstractUser):
     username = None
@@ -18,6 +17,8 @@ class Quiz(models.Model):
     name = models.CharField(max_length=250)
     description = models.TextField()
     date_created = models.DateTimeField(auto_now=True, db_index=True)
+    # TODO у опросов должна быть дата публикации, до наступления которой опрос пройти нельзя
+    # available_date = models.DateTimeField(blank=True, default=datetime.datetime.now())
 
 class QuestionGroup(models.Model):
     group_name = models.CharField(max_length=255, unique=True)

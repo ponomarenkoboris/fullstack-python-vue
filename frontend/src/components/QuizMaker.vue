@@ -234,8 +234,7 @@ export default {
         async addCreatedQuestion() {
             try {
                 const response = await axios.get(SERVER_URL + endpoints.questionsList)
-                console.log(response.data)
-                this.allCreatedQuestions = [...response.data]
+                this.allCreatedQuestions = response.data
             } catch (e) {
                 console.error(e)
             }
@@ -269,7 +268,7 @@ export default {
 
             try {
                 console.log('publishing quiz...', notReactiveQuiz);
-                const response = await axios.post(SERVER_URL + endpoints.createQuiz, {
+                const response = await axios.post(SERVER_URL + endpoints.questionsList, {
                     ...notReactiveQuiz
                 })
                 const data = await response.data

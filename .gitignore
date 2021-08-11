@@ -6,6 +6,7 @@ db.sqlite3
 quizDB.sqlite3
 fullstack_dj_app.sqlite3
 /dist
+/frontend/tests
 
 .env.local
 .env.*.local
