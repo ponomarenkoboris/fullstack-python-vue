@@ -5,11 +5,14 @@
         lazy-validation
     >
         <v-container>
-            <v-text-field label="Название опроса" :rules="rules" v-model="quiz.name"></v-text-field>
+            <v-text-field label="Название опроса" :rules="rules" v-model="quiz.quiz_name"></v-text-field>
             <v-text-field label="Описание опроса" :rules="rules" v-model="quiz.description"></v-text-field>
             <v-divider class="mb-6 mt-6"></v-divider>
             <v-container>
-                <h1>Колличество вопросов: {{ quiz.questions.length }}</h1>
+                <div class="d-flex justify-space-between">
+                    <h1>Колличество вопросов: {{ quiz.questions.length }}</h1>
+                    <h2>Максимальный балл за прохождение опроса: {{ quiz_max_grade }}</h2>
+                </div>
                 <div v-for="questionObj in quiz.questions" :key="questionObj.id">
                     <v-divider v-if="questionObj.id !== 1" class="mb-6 mt-6"></v-divider>
                     <div class="d-flex">
@@ -63,8 +66,10 @@
                                         :disabled="!variant.variant.trim()"
                                     ></v-radio>
                                 </div>
-                                <div width="500">
+                                <div width="500" class="d-flex">
                                     <v-text-field v-model="variant.variant" :rules="questionRules"></v-text-field>
+                                    <!-- TODO add number input validation -->
+                                    <v-text-field v-model="variant.score" :rules="inputNumberRules"></v-text-field>
                                 </div>
                                 <v-hover>
                                     <v-icon
@@ -85,8 +90,10 @@
                                 :disabled="!variant.variant.trim()"
                                 :rules="[() => !!questionObj.answer.length || 'Необходимо отметить правильный вариант ответа']"
                             ></v-checkbox>
-                            <div width="500px">
+                            <div width="500px" class="d-flex">
                                 <v-text-field v-model="variant.variant" :rules="questionRules"></v-text-field>
+                                <!-- TODO add number input validation -->
+                                <v-text-field v-model="variant.score" :rules="inputNumberRules"></v-text-field>
                             </div>
                             <v-hover>
                                 <v-icon
@@ -97,7 +104,7 @@
                     </v-container>
                     <div class="d-flex justify-center">
                         <v-btn
-                            @click="() => questionObj.variants.push({ id: questionObj.variants.length + 1, variant: '' })"
+                            @click="() => questionObj.variants.push({ id: questionObj.variants.length + 1, variant: '', score: 0 })"
                         >Добавить вариант ответа</v-btn>
                     </div>
                 </div>
@@ -166,11 +173,10 @@
                     </v-dialog>
                     <!-- END Dialog for adding created question -->
                 </v-row>
-
             </v-container>
             <v-divider class="mb-6 mt-6"></v-divider>
             <v-container class="d-flex justify-center">
-                <v-btn @click="publishQuiz" color="light-green accent-2">Опубликовать</v-btn>
+                <v-btn @click="publishQuiz" color="light-green accent-2">Опубликовать опрос</v-btn>
             </v-container>
         </v-container>
     </v-form>
@@ -179,9 +185,24 @@
 import { mdiDelete, mdiClose } from '@mdi/js';
 import axios from 'axios'
 import { SERVER_URL, endpoints } from "../utils";
+import alertMixin from "../mixins/alert";
 
 export default {
     name: 'QuizMaker',
+    mixins: [alertMixin],
+    computed: {
+        quiz_max_grade() {
+            // TODO make it work
+            let max_grade = 0
+            this.quiz.questions.forEach(question => {
+                question.variants.forEach(variant => {
+                    max_grade += variant.score
+                })
+            })
+            Promise.resolve(() => this.$forceUpdate())
+            return max_grade
+        }
+    },
     data: () => ({
         validForm: true,
         dialog: false,
@@ -194,9 +215,12 @@ export default {
         questionRules: [
             value => !!value.trim() || 'Обязательное поле'
         ],
+        inputNumberRules: [
+            value => !Number(value) || 'Необходимо ввести число'
+        ],
         questionsCount: 0,
         quiz: {
-            name: '',
+            quiz_name: '',
             description: '',
             questions: []
         },
@@ -267,14 +291,14 @@ export default {
             })
 
             try {
-                console.log('publishing quiz...', notReactiveQuiz);
-                const response = await axios.post(SERVER_URL + endpoints.questionsList, {
+                const response = await axios.post(SERVER_URL + endpoints.quizList, {
                     ...notReactiveQuiz
                 })
                 const data = await response.data
                 console.log(data)
             } catch (e) {
                 console.error(e)
+                this.raiseAlert("Невозмодно отправить запрос на сервер. Повторите позже.")
             }
         },
         removeQuestion(questionId) {

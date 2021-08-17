@@ -54,15 +54,30 @@
                     <v-btn @click="submitAnswers" class="green lighten-1 white--text">Завершить опрос и отправить ответы</v-btn>
                 </div>
 			</v-card>
+            <v-snackbar v-model="snackbar">
+                {{ errorText }}
+                <template v-slot:action="{ attrs }">
+                    <v-btn
+                        color="pink"
+                        text
+                        v-bind="attrs"
+                        @click="removeAlert"
+                    >
+                        Close
+                    </v-btn>
+                </template>
+            </v-snackbar>
 		</v-dialog>
 	</v-row>
 </template>
 <script>
 import axios from 'axios'
 import { SERVER_URL, endpoints } from '../utils'
+import alertMixin from "../mixins/alert";
 
 export default {
 	props: ['quiz'],
+    mixins: [alertMixin],
 	data: () => ({
 		dialog: false,
 		paginationController: 1,

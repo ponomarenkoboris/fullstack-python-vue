@@ -2,7 +2,7 @@
     <v-container class="d-flex justify-space-around">
         <v-card class="mx-auto my-12 d-flex flex-column justify-center pb-6" width="374">
             <v-card-title class="d-flex justify-center">
-                Login as user
+                Войти как сотрудник
             </v-card-title>
             <v-card-subtitle class="d-flex justify-center align-center pt-6">
                 <v-icon x-large>
@@ -10,15 +10,15 @@
                 </v-icon>
             </v-card-subtitle>
             <v-card-subtitle class="d-flex justify-center">
-                Log in as a user to pass the prepared quiz
+                Войдите как сотрудник, чтобы пройти опросы
             </v-card-subtitle>
             <v-card-actions>
-                <Login usage="user"/>
+                <Login usage="worker"/>
             </v-card-actions>
         </v-card>
         <v-card class="mx-auto my-12 d-flex flex-column justify-center pb-6" width="374">
             <v-card-title class="d-flex justify-center">
-                Login as manager
+                Войти как менеджер
             </v-card-title>
             <v-card-subtitle class="d-flex justify-center align-center pt-6">
                 <v-icon x-large>
@@ -26,10 +26,10 @@
                 </v-icon>
             </v-card-subtitle>
             <v-card-subtitle class="d-flex justify-center">
-                Log in as admin to create quiz
+                Войдите как менеджер для того, чтобы создать новый опрос
             </v-card-subtitle>
             <v-card-actions>
-                <Login usage="admin"/>
+                <Login usage="manager"/>
             </v-card-actions>
         </v-card>
     </v-container>

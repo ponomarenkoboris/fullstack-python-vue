@@ -11,14 +11,14 @@ const routes = [
 		component: Main
 	},
 	{
-		path: '/user',
-		name: 'User',
-		component: () => import(/* webpackChunkName: "user" */'../views/User.vue')
+		path: '/worker',
+		name: 'Worker',
+		component: () => import(/* webpackChunkName: "user" */'../views/Worker.vue')
 	},
 	{
-		path: '/admin',
-		name: 'Admin',
-		component: () => import(/* webpackChunkName: "admin" */'../views/Admin.vue'),
+		path: '/manager',
+		name: 'Manager',
+		component: () => import(/* webpackChunkName: "admin" */'../views/Manager.vue'),
 		children: [
 			{
 				path: 'quiz-maker/',

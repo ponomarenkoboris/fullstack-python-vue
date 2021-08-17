@@ -2,13 +2,13 @@
     <v-container>
         <v-container class="d-flex justify-space-between px-10">
             <v-tabs>
-                <v-tab to="/admin/full-statistic/">
+                <v-tab to="/manager/full-statistic/">
                     <p>Просмотр статистики</p>
                 </v-tab>
-                <v-tab to="/admin/quiz-maker/">
+                <v-tab to="/manager/quiz-maker/">
                     <p>Создание опроса</p>
                 </v-tab>
-                <v-tab to="/admin/questions-groups/">
+                <v-tab to="/manager/questions-groups/">
                     <p>Группы вопросов</p>
                 </v-tab>
             </v-tabs>

@@ -61,7 +61,7 @@ export default {
         async getQuizList() {
             try {
                 const response = await axios.get(SERVER_URL + endpoints.quizList)
-                this.quizList =  response.data
+                this.quizList = response.data
 
             } catch (error) {
                 console.error(error)

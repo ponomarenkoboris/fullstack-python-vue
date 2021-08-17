@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Variant, Quiz, Question, User, QuestionGroup
+from .models import Variant, Quiz, Question, User, QuestionGroup, UserAnswers, QuestionStatistic, QuizStatistic
 
 class VariantSerializer(serializers.ModelSerializer):
     """
@@ -7,7 +7,7 @@ class VariantSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = Variant
-        fields = ['id', 'variant']
+        fields = ['id', 'variant', 'score']
 
 class QuestionSerializer(serializers.ModelSerializer):
     """
@@ -17,7 +17,16 @@ class QuestionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Question
-        fields = ['id', 'question', 'variants', 'answer', 'multiple', 'question_photo', 'question_group']
+        fields = [
+            'id',
+            'question',
+            'variants',
+            'answer',
+            'multiple',
+            'question_photo',
+            'question_group',
+            'question_max_grade'
+        ]
         ordering = ['question_group']
 
     def create(self, validated_data):
@@ -37,7 +46,7 @@ class QuizSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Quiz
-        fields = ['id', 'name', 'description', 'questions']
+        fields = ['id', 'quiz_name', 'description', 'questions', 'quiz_max_grade']
 
     def create(self, validated_data):
         questions_data = validated_data.pop('questions')
@@ -57,9 +66,10 @@ class UserSerializer(serializers.ModelSerializer):
     """
     Сериалищация модели пользователя
     """
+
     class Meta:
         model = User
-        fields = ['id', 'name', 'email', 'surname', 'password', 'is_manager']
+        fields = ['id', 'name', 'email', 'surname', 'password', 'auth_status']
         extra_kwargs = {
             'password': {'write_only': True},
             'is_manager': {'write_only': True}
@@ -113,3 +123,63 @@ class QuestionGroupSerializer(serializers.ModelSerializer):
                 Variant.objects.create(question=question_instance, **variant)
 
         return instance
+
+# Сериализация модели ответов на вопросы
+class UserAnswersSerializer(serializers.ModelSerializer):
+    """
+    Сериализация модели пользовательских ответов на вопросы
+    """
+    class Meta:
+        model = UserAnswers
+        fields = [
+            'id',
+            'user_id',
+            'quiz_id',
+            'quiz_name',
+            'user_grade',
+            'max_grade'
+        ]
+
+
+# Сериализация статистики вопросов в опросе
+class QuestionStatisticSerializer(serializers.ModelSerializer):
+    """
+    Сериализация статистики вопросов в опросе
+    """
+    class Meta:
+        model = QuestionStatistic
+        fields = [
+            'id',
+            'question_name',
+            'user_answer',
+            'correct_answer',
+            'user_grade',
+            'question_max_grade'
+        ]
+
+# Сериализация статистики прохождения опросов
+class QuizStatisticSerializer(serializers.ModelSerializer):
+    """
+    Сериализация статистики прохождения опросов
+    """
+    questions_statistic = QuestionStatisticSerializer(many=True)
+
+    class Meta:
+        model = QuizStatistic
+        fields = [
+            'id',
+            'quiz_name',
+            'user_grade',
+            'quiz_max_grade',
+            'user_email',
+            'questions_statistic'
+        ]
+
+    def create(self, validated_data):
+        questions_statistic = validated_data.pop('questions_statistic')
+        quiz_statistic_instance = QuizStatistic.objects.create(**validated_data)
+
+        for question in questions_statistic:
+            QuestionStatistic.objects.create(quiz_statistic=quiz_statistic_instance, **question)
+
+        return quiz_statistic_instance

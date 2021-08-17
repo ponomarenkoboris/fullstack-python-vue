@@ -172,6 +172,19 @@
                 </v-expansion-panel>
             </v-expansion-panels>
         </v-container>
+        <v-snackbar v-model="snackbar">
+            {{ errorText }}
+            <template v-slot:action="{ attrs }">
+                <v-btn
+                    color="pink"
+                    text
+                    v-bind="attrs"
+                    @click="removeAlert"
+                >
+                    Close
+                </v-btn>
+            </template>
+        </v-snackbar>
     </v-container>
 </template>
 
@@ -179,9 +192,11 @@
 import { mdiPlus } from '@mdi/js';
 import axios from 'axios'
 import { SERVER_URL, endpoints } from "../utils";
+import alertMixin from "../mixins/alert";
 
 export default {
     name: "QuestionsGroups",
+    mixins: [alertMixin],
     data: () => ({
         dialogGroup: false,
         dialogQuestion: false,
