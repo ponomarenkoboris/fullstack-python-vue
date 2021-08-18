@@ -53,9 +53,9 @@ export default {
         quizList: []
     }),
     computed: {
-        name: () => localStorage.getItem('user_name'),
-        surname: () => localStorage.getItem('user_surname'),
-        email: () => localStorage.getItem('user_email')
+        name: () => localStorage.getItem('worker_name'),
+        surname: () => localStorage.getItem('worker_surname'),
+        email: () => localStorage.getItem('worker_email')
     },
     methods: {
         async getQuizList() {

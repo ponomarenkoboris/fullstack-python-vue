@@ -66,13 +66,14 @@ export default {
             this.password = ''
         },
         async login() {
-            const authStatus = this.$props.usage === 'user' ? 'worker' : 'manager'
+            const authStatus = this.$props.usage === 'worker' ? 'worker' : 'manager'
             const requestConfig = {
                 email: this.email,
                 password: this.password,
                 auth_status: authStatus
             }
             try {
+                // TODO настроить установку куки
                 const response = await axios.post(SERVER_URL + endpoints.login, requestConfig)
                 if (response.status === 200) {
                     localStorage.setItem(`${authStatus}_email`, response.data['email'])

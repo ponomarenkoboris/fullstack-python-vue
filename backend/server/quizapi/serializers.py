@@ -72,7 +72,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'email', 'surname', 'password', 'auth_status']
         extra_kwargs = {
             'password': {'write_only': True},
-            'is_manager': {'write_only': True}
+            'auth_status': {'write_only': True}
         }
 
     def create(self, validated_data):

@@ -68,8 +68,7 @@
                                 </div>
                                 <div width="500" class="d-flex">
                                     <v-text-field v-model="variant.variant" :rules="questionRules"></v-text-field>
-                                    <!-- TODO add number input validation -->
-                                    <v-text-field v-model="variant.score" :rules="inputNumberRules"></v-text-field>
+                                    <v-text-field type="number" v-model.number="variant.score" :rules="inputNumberRules"></v-text-field>
                                 </div>
                                 <v-hover>
                                     <v-icon
@@ -92,8 +91,7 @@
                             ></v-checkbox>
                             <div width="500px" class="d-flex">
                                 <v-text-field v-model="variant.variant" :rules="questionRules"></v-text-field>
-                                <!-- TODO add number input validation -->
-                                <v-text-field v-model="variant.score" :rules="inputNumberRules"></v-text-field>
+                                <v-text-field type="number" v-model.number="variant.score" :rules="inputNumberRules"></v-text-field>
                             </div>
                             <v-hover>
                                 <v-icon
@@ -192,14 +190,16 @@ export default {
     mixins: [alertMixin],
     computed: {
         quiz_max_grade() {
-            // TODO make it work
             let max_grade = 0
             this.quiz.questions.forEach(question => {
-                question.variants.forEach(variant => {
-                    max_grade += variant.score
-                })
+                if (question.multiple) {
+                    const answer = question.answer.map(item => item.variant).join(',')
+                    max_grade += question.variants.reduce((prev, curr) => answer.indexOf(curr.variant) > -1 ? prev += curr.score : prev, 0)
+                }
+                max_grade += question.variants.reduce((prev, curr) => {
+                    return question.answer.indexOf(curr.variant) > -1 ? prev += curr.score : prev
+                }, 0)
             })
-            Promise.resolve(() => this.$forceUpdate())
             return max_grade
         }
     },
@@ -216,7 +216,7 @@ export default {
             value => !!value.trim() || 'Обязательное поле'
         ],
         inputNumberRules: [
-            value => !Number(value) || 'Необходимо ввести число'
+            value => value.toString().length >= 0 || 'Необходимо ввести число'
         ],
         questionsCount: 0,
         quiz: {
@@ -260,7 +260,7 @@ export default {
                 const response = await axios.get(SERVER_URL + endpoints.questionsList)
                 this.allCreatedQuestions = response.data
             } catch (e) {
-                console.error(e)
+                this.raiseAlert('Неудалось соединиться с сервером.')
             }
         },
         changeQuestionPhoto(questionId, event) {
@@ -279,17 +279,27 @@ export default {
             const isValid = this.$refs.form.validate()
             if (!isValid) return
             const notReactiveQuiz = JSON.parse(JSON.stringify(this.quiz))
+            notReactiveQuiz.quiz_max_grade = this.quiz_max_grade
 
             notReactiveQuiz.questions.forEach(question => {
                 if (question.multiple && question.answer.length) {
-                    question.answer = question.answer.reduce((prev, curr) => prev.variant + ',' + curr.variant)
+                    question.answer = question.answer.length === 1 ?
+                        question.answer[0].variant :
+                        question.answer.reduce((prev, curr) => `${prev.variant},${curr.variant}`)
                 } else if (question.multiple) {
                     question.answer = ''
                 } else if (typeof question.answer === 'undefined') {
                     question.answer = ''
                 }
-            })
 
+                question.question_max_grade = question.variants.reduce((prev, curr) => {
+                    if (question.multiple) {
+                        return question.answer.indexOf(curr.variant) > -1 ? prev += curr.score : prev
+                    }
+                    return prev >= curr.score ? prev : curr.score
+                }, 0)
+            })
+            console.log(notReactiveQuiz)
             try {
                 const response = await axios.post(SERVER_URL + endpoints.quizList, {
                     ...notReactiveQuiz
