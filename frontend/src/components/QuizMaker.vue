@@ -174,7 +174,7 @@
             </v-container>
             <v-divider class="mb-6 mt-6"></v-divider>
             <v-container class="d-flex justify-center">
-                <v-btn @click="publishQuiz" color="light-green accent-2">Опубликовать опрос</v-btn>
+                <v-btn @click="publishQuiz" :disabled="!quiz.questions.length" color="light-green accent-2">Опубликовать опрос</v-btn>
             </v-container>
         </v-container>
     </v-form>
@@ -277,7 +277,7 @@ export default {
         },
         async publishQuiz() {
             const isValid = this.$refs.form.validate()
-            if (!isValid) return
+            if (!isValid || !this.quiz.questions.length) return
             const notReactiveQuiz = JSON.parse(JSON.stringify(this.quiz))
             notReactiveQuiz.quiz_max_grade = this.quiz_max_grade
 

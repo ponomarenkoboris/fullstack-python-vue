@@ -1,5 +1,13 @@
 from rest_framework import serializers
-from .models import Variant, Quiz, Question, User, QuestionGroup, UserAnswers, QuestionStatistic, QuizStatistic
+from .models import *
+import time
+
+class TimestampField(serializers.Field):
+    """
+    Преобразование поля типа DateTimeField в timestamp
+    """
+    def to_representation(self, value):
+        return int(time.mktime(value.timetuple()))
 
 class VariantSerializer(serializers.ModelSerializer):
     """
@@ -43,10 +51,11 @@ class QuizSerializer(serializers.ModelSerializer):
     Сериализация модели опросов
     """
     questions = QuestionSerializer(many=True)
+    created = TimestampField(source='date_created')
 
     class Meta:
         model = Quiz
-        fields = ['id', 'quiz_name', 'description', 'questions', 'quiz_max_grade']
+        fields = ['id', 'quiz_name', 'description', 'questions', 'quiz_max_grade', 'created']
 
     def create(self, validated_data):
         questions_data = validated_data.pop('questions')
@@ -124,7 +133,7 @@ class QuestionGroupSerializer(serializers.ModelSerializer):
 
         return instance
 
-# Сериализация модели ответов на вопросы
+# Сериализация модели ответов на вопросы (статистика для сотружника, прошедшего опрос)
 class UserAnswersSerializer(serializers.ModelSerializer):
     """
     Сериализация модели пользовательских ответов на вопросы
@@ -154,16 +163,16 @@ class QuestionStatisticSerializer(serializers.ModelSerializer):
             'user_answer',
             'correct_answer',
             'user_grade',
-            'question_max_grade'
+            'question_max_grade',
         ]
 
-# Сериализация статистики прохождения опросов
+# Сериализация статистики прохождения опросов (статистика для менеджеров)
 class QuizStatisticSerializer(serializers.ModelSerializer):
     """
     Сериализация статистики прохождения опросов
     """
     questions_statistic = QuestionStatisticSerializer(many=True)
-
+    completion_date = TimestampField(source='date_of_completion')
     class Meta:
         model = QuizStatistic
         fields = [
@@ -172,7 +181,11 @@ class QuizStatisticSerializer(serializers.ModelSerializer):
             'user_grade',
             'quiz_max_grade',
             'user_email',
-            'questions_statistic'
+            'user_name',
+            'user_surname',
+            'questions_statistic',
+            'completion_date',
+            # 'date_of_completion'
         ]
 
     def create(self, validated_data):

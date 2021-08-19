@@ -1,8 +1,15 @@
 <template>
-    <v-container class="d-flex justify-space-around">
+    <v-container class="d-flex justify-space-around flex-column">
+        <v-sheet class="pa-5 d-flex justify-center">
+            <v-switch
+                v-model="loginSwitch"
+                inset
+                :label="`Войти как ${ authAs }`"
+            ></v-switch>
+        </v-sheet>
         <v-card class="mx-auto my-12 d-flex flex-column justify-center pb-6" width="374">
             <v-card-title class="d-flex justify-center">
-                Войти как сотрудник
+                Войти как {{ authAs }}
             </v-card-title>
             <v-card-subtitle class="d-flex justify-center align-center pt-6">
                 <v-icon x-large>
@@ -10,26 +17,10 @@
                 </v-icon>
             </v-card-subtitle>
             <v-card-subtitle class="d-flex justify-center">
-                Войдите как сотрудник, чтобы пройти опросы
+                Войти как {{ loginSwitch ? 'сотрудник, чтобы пройти опросы' : 'менеджер, чтобы созавать опросы' }}
             </v-card-subtitle>
             <v-card-actions>
-                <Login usage="worker"/>
-            </v-card-actions>
-        </v-card>
-        <v-card class="mx-auto my-12 d-flex flex-column justify-center pb-6" width="374">
-            <v-card-title class="d-flex justify-center">
-                Войти как менеджер
-            </v-card-title>
-            <v-card-subtitle class="d-flex justify-center align-center pt-6">
-                <v-icon x-large>
-                    {{ adminIcon }}
-                </v-icon>
-            </v-card-subtitle>
-            <v-card-subtitle class="d-flex justify-center">
-                Войдите как менеджер для того, чтобы создать новый опрос
-            </v-card-subtitle>
-            <v-card-actions>
-                <Login usage="manager"/>
+                <Login :usage="loginSwitch ? 'worker' : 'manager'"/>
             </v-card-actions>
         </v-card>
     </v-container>
@@ -44,9 +35,15 @@ export default {
     components: {
         Login
     },
+    computed: {
+        authAs() {
+            return this.loginSwitch ? 'сотрудник' : 'менеджер'
+        }
+    },
     data: () => ({
         userIcon: mdiAccount,
-        adminIcon: mdiAccountLock
+        adminIcon: mdiAccountLock,
+        loginSwitch: true
     })
 }
 </script>

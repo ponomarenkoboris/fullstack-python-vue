@@ -2,116 +2,132 @@
     <v-container>
         <v-data-table
             :headers="headers"
-            :items="desserts"
+            :items="statistic"
             :items-per-page="10"
             class="elevation-1"
+            :loading="loadingData"
+            loading-text="Loading... Please wait"
+            @click:row="seeMoreInfo($event)"
         ></v-data-table>
+
+        <v-dialog
+            transition="dialog-bottom-transition"
+            max-width="600"
+            :value="fullStatisticController"
+        >
+            <v-card>
+                <v-toolbar
+                    color="light-green lighten-2 black--text"
+                    dark
+                >Опрос: {{ fullStatisticData.quiz_name }}</v-toolbar>
+                <v-card-text class="mt-5">
+                    <v-sheet
+                        rounded
+                        v-for="questionStatistic in fullStatisticData.questions_statistic"
+                        :key="questionStatistic.id"
+                        elevation="8"
+                    >
+                        <v-container class="mb-2">
+                            <div class="d-flex justify-space-between">
+                                <div>Вопрос: {{ questionStatistic.question_name }}</div>
+                                <div>Оценка: {{ questionStatistic.user_grade }}/{{ questionStatistic.question_max_grade }}</div>
+                            </div>
+                            <div>
+                                <div>Ответ пользователя: {{ questionStatistic.user_answer }}</div>
+                                <div>Правлильный ответ: {{ questionStatistic.correct_answer }}</div>
+                            </div>
+                        </v-container>
+                    </v-sheet>
+                </v-card-text>
+                <v-card-actions class="justify-end">
+                    <v-btn
+                        @click="closeDialog"
+                        text
+                    >Закрыть</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+
+        <v-snackbar v-model="snackbar">
+            {{ errorText }}
+            <template v-slot:action="{ attrs }">
+                <v-btn
+                    color="pink"
+                    text
+                    v-bind="attrs"
+                    @click="removeAlert"
+                >
+                    Close
+                </v-btn>
+            </template>
+        </v-snackbar>
     </v-container>
 </template>
 <script>
+import alertMixin from "../mixins/alert";
+import axios from 'axios'
+import { SERVER_URL, endpoints } from "../utils";
+
 export default {
     name: 'Statistic',
+    mixins: [alertMixin],
     data: () => ({
         headers: [
             {
                 text: 'Email пользователя',
                 align: 'start',
                 sortable: false,
-                value: 'email',
+                value: 'user_email',
             },
-            { text: 'Имя', value: 'name' },
-            { text: 'Фамилия', value: 'surname' },
+            { text: 'Имя', value: 'user_name' },
+            { text: 'Фамилия', value: 'user_surname' },
             { text: 'Название опроса', value: 'quiz_name' },
             { text: 'Бал пользователя', value: 'user_grade' },
-            { text: 'Максимальный бал', value: 'max_grade' },
+            { text: 'Максимальный бал', value: 'quiz_max_grade' },
+            { text: 'Дата завершение опроса', value: 'completion_date' }
         ],
-        desserts: [
-            {
-                email: 'boris@mail.com',
-                name: 'Boris',
-                surname: 'Ponomarenko',
-                quiz_name: 'HR опрос',
-                user_grade: 4.0,
-                max_grade: 10,
-            },
-            {
-                email: 'boris@mail.com',
-                name: 'Boris',
-                surname: 'Ponomarenko',
-                quiz_name: 'HR опрос',
-                user_grade: 4.0,
-                max_grade: 10,
-            },
-            {
-                email: 'boris@mail.com',
-                name: 'Boris',
-                surname: 'Ponomarenko',
-                quiz_name: 'HR опрос',
-                user_grade: 4.0,
-                max_grade: 10,
-            },
-            {
-                email: 'boris@mail.com',
-                name: 'Boris',
-                surname: 'Ponomarenko',
-                quiz_name: 'HR опрос',
-                user_grade: 4.0,
-                max_grade: 10,
-            },
-            {
-                email: 'boris@mail.com',
-                name: 'Boris',
-                surname: 'Ponomarenko',
-                quiz_name: 'HR опрос',
-                user_grade: 4.0,
-                max_grade: 10,
-            },
-            {
-                email: 'boris@mail.com',
-                name: 'Boris',
-                surname: 'Ponomarenko',
-                quiz_name: 'HR опрос',
-                user_grade: 4.0,
-                max_grade: 10,
-            },
-            {
-                email: 'boris@mail.com',
-                name: 'Boris',
-                surname: 'Ponomarenko',
-                quiz_name: 'HR опрос',
-                user_grade: 4.0,
-                max_grade: 10,
-            },
-            {
-                email: 'boris@mail.com',
-                name: 'Boris',
-                surname: 'Ponomarenko',
-                quiz_name: 'HR опрос',
-                user_grade: 4.0,
-                max_grade: 10,
-            },
-            {
-                email: 'boris@mail.com',
-                name: 'Boris',
-                surname: 'Ponomarenko',
-                quiz_name: 'HR опрос',
-                user_grade: 4.0,
-                max_grade: 10,
-            },
-            {
-                email: 'boris@mail.com',
-                name: 'Boris',
-                surname: 'Ponomarenko',
-                quiz_name: 'HR опрос',
-                user_grade: 4.0,
-                max_grade: 10,
-            },
-        ],
+        statistic: [],
+        loadingData: true,
+        fullStatisticController: false,
+        fullStatisticData: {}
     }),
-    computed: {
-        statisticList() {
-            return this.$store.state.statisticList
+    methods: {
+        async getStatistic() {
+            try {
+                const response = await axios.get(SERVER_URL + endpoints.quizFullStatistic, { withCredentials: true })
+                if (response.status === 200) {
+                    console.log(response.data)
+                    const validStatistic = response.data.map(quizStatistic => {
+                        // TODO настроить время
+                        const { completion_date } = quizStatistic
+                        const jsTimestamp = new Date(completion_date).getTime() / 1000
+                        console.log(jsTimestamp.toLocaleString())
+                        return {
+                            ...quizStatistic,
+                            completion_date: new Date(quizStatistic.completion_date).getDay(),
+                        }
+                    })
+                    console.log(validStatistic)
+                    this.statistic = validStatistic
+                    this.loadingData = false
+                }
+            } catch (e) {
+                console.error(e.message)
+                this.raiseAlert('Неудалось получить данные статистики. Повторите позже.')
+                this.loadingData = false
+            }
+        },
+        seeMoreInfo(event) {
+            this.fullStatisticData = event
+            this.fullStatisticController = true
+        },
+        closeDialog(){
+            this.fullStatisticData = {}
+            this.fullStatisticController = false
         }
+    },
+    mounted() {
+        this.getStatistic()
     }
 }
 </script>

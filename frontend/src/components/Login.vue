@@ -1,7 +1,7 @@
 <template>
     <v-row justify="center">
         <v-btn id="btn_login" @click="dialog = true" color="primary">
-            <span id="login">Войти как {{ usage === 'worker' ? 'пользователь' : 'менеджер' }}</span>
+            <span id="login">Войти</span>
         </v-btn>
         <v-dialog v-model="dialog" persistent max-width="600px">
             <v-card>
@@ -19,7 +19,7 @@
                             </v-col>
                         </v-row>
                     </v-container>
-                <small>*обязательные поля</small>
+                <small>*обязательное поле</small>
                 </v-card-text>
                 <v-card-actions>
                     <v-spacer></v-spacer>
@@ -67,14 +67,13 @@ export default {
         },
         async login() {
             const authStatus = this.$props.usage === 'worker' ? 'worker' : 'manager'
-            const requestConfig = {
+            const loginData = {
                 email: this.email,
                 password: this.password,
                 auth_status: authStatus
             }
             try {
-                // TODO настроить установку куки
-                const response = await axios.post(SERVER_URL + endpoints.login, requestConfig)
+                const response = await axios.post(SERVER_URL + endpoints.login, loginData, { withCredentials: true })
                 if (response.status === 200) {
                     localStorage.setItem(`${authStatus}_email`, response.data['email'])
                     localStorage.setItem(`${authStatus}_name`, response.data['name'])

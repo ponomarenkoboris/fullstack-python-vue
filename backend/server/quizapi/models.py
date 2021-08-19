@@ -103,7 +103,10 @@ class QuizStatistic(models.Model):
     quiz_max_grade: максимальный балл за опрос
     """
     user_email = models.EmailField(max_length=255)
+    user_name = models.CharField(max_length=255, default='None')
+    user_surname = models.CharField(max_length=255, default='None')
     quiz_name = models.CharField(max_length=250)
+    date_of_completion = models.DateTimeField(auto_now=True, db_index=True)
     user_grade = models.IntegerField()
     quiz_max_grade = models.IntegerField()
 

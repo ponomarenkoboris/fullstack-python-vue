@@ -3,7 +3,7 @@
 	<v-row justify="center">
 		<v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition">
 			<template v-slot:activator="{ on, attrs }">
-				<v-btn class="mb-6" v-bind="attrs" v-on="on">Start quiz</v-btn>
+				<v-btn class="mb-6" v-bind="attrs" v-on="on">Пройти опрос</v-btn>
 			</template>
 			<v-card>
 				<v-toolbar dark	color="primary" class="mb-6">
@@ -28,6 +28,7 @@
                         height="250px"
                     >
                 </div>
+                <!-- If question haven`t got multiple answer -->>
                 <div v-if="!quiz.questions[paginationController - 1].multiple" class="d-flex justify-center">
                     <v-radio-group v-model="quiz.questions[paginationController - 1].answer">
                         <v-radio
@@ -38,6 +39,7 @@
                         ></v-radio>
                     </v-radio-group>
                 </div>
+                <!-- If question got multiple answers -->
                 <div v-else class="d-flex justify-center">
                     <div>
                         <v-checkbox
@@ -84,7 +86,6 @@ export default {
 	}),
     watch: {
 	    dialog(_, oldDialogStatus) {
-	        if (oldDialogStatus) this.$props.quiz.questions.forEach(question => { if (question.answer) delete question.answer})
             if (!oldDialogStatus) {
                 this.$props.quiz.questions.forEach(question => { question.multiple ? question.answer = [] : question.answer = ''})
                 this.paginationController = 1
@@ -104,7 +105,9 @@ export default {
         async submitAnswers() {
             const castAnswerToString = question => {
                 if (question.multiple && question.answer.length) {
-                    return question.answer.reduce((prev, curr) => prev + ',' + curr)
+                    return question.answer.length === 1 ?
+                        question.answer[0] :
+                        question.answer.reduce((prev, curr) => `${prev},${curr}`)
                 } else if (question.multiple) {
                     return ''
                 } else if (typeof question.answer === 'undefined') {
@@ -120,13 +123,17 @@ export default {
             }))
             const userAnswer = {
                 quizId: this.$props.quiz.id,
-                email: localStorage.getItem('user_email'),
                 answers
             }
 
-            console.log(userAnswer)
-            // TODO make request
-            // const response = await axios.post(SERVER_URL + endpoints.submitAnswers)
+            try {
+                const response = await axios.post(SERVER_URL + endpoints.userGrading, userAnswer, { withCredentials: true })
+                if (response.data.success) {
+                    this.dialog = false
+                }
+            } catch (e) {
+                this.raiseAlert('Неудалось отправить ответы. Попробуйте позже.')
+            }
         },
     }
 }

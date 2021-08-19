@@ -35,7 +35,6 @@ class QuizView(APIView):
                 quiz_list - список не пройденных опросов,
                 done_quiz_list - список пройденных вопросов
         """
-
         payload = get_data_from_jwt(request.COOKIES.get('jwt'))
         # if payload is False or payload['status'] != 'worker':
         #     return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
@@ -140,7 +139,7 @@ class LoginView(APIView):
         return response
 
 class LogoutView(APIView):
-    def post(self):
+    def post(self, request):
         response = Response()
         response.delete_cookie('jwt')
         response.data = {
@@ -222,6 +221,8 @@ class GradingUser(APIView):
         user_instance = User.objects.filter(id=payload['id']).first()
         serialized_user = serializers.UserSerializer(user_instance)
         quiz_statistic['user_email'] = serialized_user.data['email']
+        quiz_statistic['user_name'] = serialized_user.data['name']
+        quiz_statistic['user_surname'] = serialized_user.data['surname']
 
         quiz_name = quiz_instance['quiz_name']
         quiz_max_grade = quiz_instance['quiz_max_grade']
@@ -257,8 +258,6 @@ class GradingUser(APIView):
                 "question_max_grade": question_instance['question_max_grade'],
             })
 
-            question_user_grade = 0
-
         quiz_statistic['questions_statistic'] = question_statistic
         quiz_statistic['user_grade'] = user_score
 
@@ -280,7 +279,7 @@ class GradingUser(APIView):
 
         return Response(status=status.HTTP_201_CREATED, data={
             "message": "Replies saved successfully",
-            "statistic": quiz_statistic
+            "success": True
         })
 
 
