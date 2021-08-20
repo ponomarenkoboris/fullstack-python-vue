@@ -4,7 +4,7 @@ from rest_framework.exceptions import AuthenticationFailed
 from rest_framework import status
 from .models import Quiz, User, Question, QuestionGroup, UserAnswers, QuizStatistic
 from . import serializers
-import json, jwt
+import json, jwt, time
 from .jwt_methods import get_data_from_jwt, set_jwt
 
 class QuizView(APIView):
@@ -51,8 +51,16 @@ class QuizView(APIView):
         serialized_quiz = serializers.QuizSerializer(quiz_list, many=True)
         quiz_list = json.loads(json.dumps(serialized_quiz.data))
 
+        current_time = time.time()
+
+
         if len(quiz_list) != 0:
             for quiz in quiz_list:
+                print(current_time)
+                print(quiz['publish_date'])
+                if current_time < quiz['publish_date']:
+                    continue
+
                 del quiz['quiz_max_grade']
                 for question in quiz['questions']:
                     del question['answer']

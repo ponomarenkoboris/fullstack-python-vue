@@ -36,6 +36,7 @@ class Quiz(models.Model):
     date_created = models.DateTimeField(auto_now=True, db_index=True)
     quiz_max_grade = models.IntegerField()
     # TODO у опросов должна быть дата публикации, до наступления которой опрос пройти нельзя
+    avaliable_date = models.DateTimeField()
 
 class QuestionGroup(models.Model):
     """

@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import *
+from datetime import datetime
 import time
 
 class TimestampField(serializers.Field):
@@ -8,6 +9,9 @@ class TimestampField(serializers.Field):
     """
     def to_representation(self, value):
         return int(time.mktime(value.timetuple()))
+
+    def to_internal_value(self, data):
+        return datetime.fromtimestamp(data)
 
 class VariantSerializer(serializers.ModelSerializer):
     """
@@ -51,11 +55,11 @@ class QuizSerializer(serializers.ModelSerializer):
     Сериализация модели опросов
     """
     questions = QuestionSerializer(many=True)
-    created = TimestampField(source='date_created')
+    publish_date = TimestampField(source='avaliable_date', default='')
 
     class Meta:
         model = Quiz
-        fields = ['id', 'quiz_name', 'description', 'questions', 'quiz_max_grade', 'created']
+        fields = ['id', 'quiz_name', 'description', 'questions', 'quiz_max_grade', 'publish_date']
 
     def create(self, validated_data):
         questions_data = validated_data.pop('questions')
@@ -172,7 +176,8 @@ class QuizStatisticSerializer(serializers.ModelSerializer):
     Сериализация статистики прохождения опросов
     """
     questions_statistic = QuestionStatisticSerializer(many=True)
-    completion_date = TimestampField(source='date_of_completion')
+    completion_date = TimestampField(source='date_of_completion', default='')
+
     class Meta:
         model = QuizStatistic
         fields = [
@@ -185,7 +190,6 @@ class QuizStatisticSerializer(serializers.ModelSerializer):
             'user_surname',
             'questions_statistic',
             'completion_date',
-            # 'date_of_completion'
         ]
 
     def create(self, validated_data):

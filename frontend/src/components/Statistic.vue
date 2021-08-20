@@ -96,18 +96,16 @@ export default {
             try {
                 const response = await axios.get(SERVER_URL + endpoints.quizFullStatistic, { withCredentials: true })
                 if (response.status === 200) {
-                    console.log(response.data)
                     const validStatistic = response.data.map(quizStatistic => {
-                        // TODO настроить время
                         const { completion_date } = quizStatistic
-                        const jsTimestamp = new Date(completion_date).getTime() / 1000
-                        console.log(jsTimestamp.toLocaleString())
+                        const date = new Date(completion_date * 1000 + 10800000)
                         return {
                             ...quizStatistic,
-                            completion_date: new Date(quizStatistic.completion_date).getDay(),
+                            completion_date: `${
+                                date.getDate() + '.' + (date.getMonth() + 1 < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1) + '.' + date.getFullYear()},
+                                ${date.getHours() + ':' + (date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes())}`
                         }
                     })
-                    console.log(validStatistic)
                     this.statistic = validStatistic
                     this.loadingData = false
                 }

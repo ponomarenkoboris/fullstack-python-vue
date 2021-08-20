@@ -54,7 +54,7 @@
                     </div>
 
                     <!-- If one answer -->
-                    <v-container v-if="!questionObj.multiple" class="d-flex justify-center">
+                    <v-container v-if="!questionObj.multiple" class="d-flex">
                         <v-radio-group
                             v-model="questionObj.answer"
                             :rules="[() => !!questionObj.answer.length || 'Необходимо отметить правильный вариант ответа']"
@@ -66,9 +66,9 @@
                                         :disabled="!variant.variant.trim()"
                                     ></v-radio>
                                 </div>
-                                <div width="500" class="d-flex">
-                                    <v-text-field v-model="variant.variant" :rules="questionRules"></v-text-field>
-                                    <v-text-field type="number" v-model.number="variant.score" :rules="inputNumberRules"></v-text-field>
+                                <div width="700px" class="d-flex justify-space-between">
+                                    <v-text-field v-model="variant.variant" :rules="questionRules" outlined label="Вариант ответа"></v-text-field>
+                                    <v-text-field type="number" v-model.number="variant.score" :rules="inputNumberRules" outlined label="Балл за выбранный вариант"></v-text-field>
                                 </div>
                                 <v-hover>
                                     <v-icon
@@ -82,23 +82,25 @@
                     <!-- If multiple answer -->
                     <!-- TODO stile for checkbox validation -->
                     <v-container v-else>
-                        <v-container v-for="variant in questionObj.variants" :key="variant.id" class="d-flex justify-center">
+                        <v-sheet
+                            color="white"
+                            elevation="8"
+                            class="d-flex align-center"
+                            v-for="variant in questionObj.variants" :key="variant.id">
                             <v-checkbox
                                 v-model="questionObj.answer"
                                 :value="variant"
                                 :disabled="!variant.variant.trim()"
                                 :rules="[() => !!questionObj.answer.length || 'Необходимо отметить правильный вариант ответа']"
                             ></v-checkbox>
-                            <div width="500px" class="d-flex">
-                                <v-text-field v-model="variant.variant" :rules="questionRules"></v-text-field>
-                                <v-text-field type="number" v-model.number="variant.score" :rules="inputNumberRules"></v-text-field>
-                            </div>
+                                <v-text-field v-model="variant.variant" :rules="questionRules" outlined label="Вариант ответа"></v-text-field>
+                                <v-text-field type="number" v-model.number="variant.score" :rules="inputNumberRules" outlined label="Балл за выбранный вариант"></v-text-field>
                             <v-hover>
                                 <v-icon
                                     @click="removeVariant(questionObj.id, variant.id)"
                                 >{{ removeVariantIcon }}</v-icon>
                             </v-hover>
-                        </v-container>
+                        </v-sheet>
                     </v-container>
                     <div class="d-flex justify-center">
                         <v-btn
@@ -173,6 +175,12 @@
                 </v-row>
             </v-container>
             <v-divider class="mb-6 mt-6"></v-divider>
+            <!-- Calendar -->
+            <v-date-picker
+                locale="ru-RU"
+                v-model="publishDate"
+            />
+            <!-- end calendar -->
             <v-container class="d-flex justify-center">
                 <v-btn @click="publishQuiz" :disabled="!quiz.questions.length" color="light-green accent-2">Опубликовать опрос</v-btn>
             </v-container>
@@ -208,6 +216,7 @@ export default {
         dialog: false,
         selectedQuestion: '',
         allCreatedQuestions: [],
+        publishDate: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
         rules: [
             value => !!value || 'Обязательное поле',
             value => (value && value.length >= 5) || 'Минимальное колличество букв: 5'
@@ -285,7 +294,7 @@ export default {
                 if (question.multiple && question.answer.length) {
                     question.answer = question.answer.length === 1 ?
                         question.answer[0].variant :
-                        question.answer.reduce((prev, curr) => `${prev.variant},${curr.variant}`)
+                        question.answer.map(answer => answer.variant).join(',')
                 } else if (question.multiple) {
                     question.answer = ''
                 } else if (typeof question.answer === 'undefined') {
@@ -299,17 +308,22 @@ export default {
                     return prev >= curr.score ? prev : curr.score
                 }, 0)
             })
-            console.log(notReactiveQuiz)
-            try {
-                const response = await axios.post(SERVER_URL + endpoints.quizList, {
-                    ...notReactiveQuiz
-                })
-                const data = await response.data
-                console.log(data)
-            } catch (e) {
-                console.error(e)
-                this.raiseAlert("Невозмодно отправить запрос на сервер. Повторите позже.")
-            }
+            notReactiveQuiz['publish_date'] = Math.floor(new Date(new Date(this.publishDate).getTime() - 10800000) / 1000)
+            // try {
+            //     const response = await axios.post(SERVER_URL + endpoints.quizList, {
+            //         ...notReactiveQuiz
+            //     })
+            //     if (response.status === 200) {
+            //         this.quiz = {
+            //             quiz_name: '',
+            //             description: '',
+            //             questions: []
+            //         }
+            //     }
+            // } catch (e) {
+            //     console.error(e)
+            //     this.raiseAlert("Невозмодно отправить запрос на сервер. Повторите позже.")
+            // }
         },
         removeQuestion(questionId) {
             this.quiz.questions = this.quiz.questions.filter(question => question.id !== questionId)
