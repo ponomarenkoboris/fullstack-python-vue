@@ -124,7 +124,7 @@ class QuestionStatistic(models.Model):
     """
     quiz_statistic = models.ForeignKey(QuizStatistic, related_name='questions_statistic', on_delete=models.CASCADE)
     question_name = models.CharField(max_length=250)
-    user_answer = models.TextField()
+    user_answer = models.TextField(blank=True, default='Нет ответа')
     correct_answer = models.TextField()
     user_grade = models.IntegerField()
     question_max_grade = models.IntegerField()

@@ -43,23 +43,16 @@ class QuizView(APIView):
         serialized_answers = serializers.UserAnswersSerializer(user_answers, many=True)
         user_answers = json.loads(json.dumps(serialized_answers.data))
 
-        quiz_ids = []
-        for answer in user_answers:
-            quiz_ids.append(answer['quiz_id'])
+        quiz_ids = [answer['quiz_id'] for answer in user_answers]
 
         quiz_list = Quiz.objects.exclude(id__in=quiz_ids)
         serialized_quiz = serializers.QuizSerializer(quiz_list, many=True)
         quiz_list = json.loads(json.dumps(serialized_quiz.data))
+        current_time = round(time.time())
+        avaliable_list = [quiz for quiz in quiz_list if quiz['publish_date'] <= current_time]
 
-        current_time = time.time()
-
-
-        if len(quiz_list) != 0:
-            for quiz in quiz_list:
-                print(current_time)
-                print(quiz['publish_date'])
-                if current_time < quiz['publish_date']:
-                    continue
+        if len(avaliable_list) != 0:
+            for quiz in avaliable_list:
 
                 del quiz['quiz_max_grade']
                 for question in quiz['questions']:
@@ -70,7 +63,7 @@ class QuizView(APIView):
                         del variant['score']
 
         return Response(status=status.HTTP_200_OK, data={
-            "quiz_list": quiz_list,
+            "quiz_list": avaliable_list,
             "done_quiz_list": user_answers
         })
 
@@ -150,6 +143,7 @@ class LogoutView(APIView):
     def post(self, request):
         response = Response()
         response.delete_cookie('jwt')
+        response.status = status.HTTP_200_OK
         response.data = {
             'message': 'success'
         }
@@ -252,11 +246,16 @@ class GradingUser(APIView):
             question_user_grade = 0
 
             for user_answer in answer['answer'].split(','):
-                exist = question_instance['answer'].find(user_answer)
+
+                if len(user_answer) == 0 or user_answer is None:
+                    exist = -1
+                else:
+                    exist = question_instance['answer'].find(user_answer)
 
                 if exist != -1:
                     user_score += searchEl(user_answer, question_instance['variants'])
                     question_user_grade += searchEl(user_answer, question_instance['variants'])
+
 
             question_statistic.append({
                 "question_name": question_instance['question'],

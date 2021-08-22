@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import *
 from datetime import datetime
-import time
+import time, pytz
 
 class TimestampField(serializers.Field):
     """
@@ -11,7 +11,10 @@ class TimestampField(serializers.Field):
         return int(time.mktime(value.timetuple()))
 
     def to_internal_value(self, data):
-        return datetime.fromtimestamp(data)
+        local_tz = pytz.timezone('Europe/Moscow')
+        uts_date = datetime.fromtimestamp(data).replace(tzinfo=local_tz)
+        print('uts_date -->> ', uts_date)
+        return uts_date
 
 class VariantSerializer(serializers.ModelSerializer):
     """

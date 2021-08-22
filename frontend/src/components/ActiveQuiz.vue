@@ -125,11 +125,11 @@ export default {
                 quizId: this.$props.quiz.id,
                 answers
             }
-
             try {
                 const response = await axios.post(SERVER_URL + endpoints.userGrading, userAnswer, { withCredentials: true })
-                if (response.data.success) {
+                if (response.status === 201) {
                     this.dialog = false
+                    this.$emit('updatePollsList', 'hello from child')
                 }
             } catch (e) {
                 this.raiseAlert('Неудалось отправить ответы. Попробуйте позже.')

@@ -60,7 +60,7 @@
                         <div class="mb-6">
                             {{ quiz.description }}
                         </div>
-                        <ActiveQuiz :quiz="quiz" :index="idx"/>
+                        <ActiveQuiz :quiz="quiz" :index="idx" @updatePollsList="getQuizList"/>
                     </v-expansion-panel-content>
                 </v-expansion-panel>
             </v-expansion-panels>
