@@ -89,35 +89,37 @@
                                             v-model="question.answer"
                                             :rules="[() => !!question.answer.length || 'Необходимо отметить правильный вариант ответа']"
                                         >
-                                            <v-container v-for="variant in question.variants" :key="variant.id" class="d-flex align-center">
+                                            <v-container v-for="variant in question.variants" :key="variant.id" class="d-flex align-center align-center">
                                                 <div class="mr-6">
                                                     <v-radio
                                                         v-model="variant.variant"
                                                         :disabled="!variant.variant.trim()"
                                                     ></v-radio>
                                                 </div>
-                                                <div width="500">
-                                                    <v-text-field v-model="variant.variant" :rules="questionRules"></v-text-field>
-                                                </div>
+                                                <v-container class="d-flex align-center">
+                                                    <v-text-field v-model="variant.variant" :rules="questionRules" class="mr-2"></v-text-field>
+                                                    <v-text-field type="number" v-model.number="variant.score" outlined label="Балл за выбранный вариант"></v-text-field>
+                                                </v-container>
                                             </v-container>
                                         </v-radio-group>
                                     </v-container>
                                     <v-container v-else>
-                                        <v-container v-for="variant in question.variants" :key="variant.id" class="d-flex justify-center">
+                                        <v-container v-for="variant in question.variants" :key="variant.id" class="d-flex justify-center align-center">
                                             <v-checkbox
                                                 v-model="question.answer"
                                                 :value="variant"
                                                 :disabled="!variant.variant.trim()"
                                                 :rules="[() => !!question.answer.length || 'Необходимо отметить правильный вариант ответа']"
                                             ></v-checkbox>
-                                            <div width="500px">
-                                                <v-text-field v-model="variant.variant" :rules="questionRules"></v-text-field>
-                                            </div>
+                                            <v-container class="d-flex align-center">
+                                                <v-text-field v-model="variant.variant" :rules="questionRules" class="mr-2"></v-text-field>
+                                                <v-text-field type="number" v-model.number="variant.score" outlined label="Балл за выбранный вариант"></v-text-field>
+                                            </v-container>
                                         </v-container>
                                     </v-container>
                                     <div class="d-flex justify-center">
                                         <v-btn
-                                            @click="() => question.variants.push({ id: question.variants.length + 1, variant: '' })"
+                                            @click="() => question.variants.push({ id: question.variants.length + 1, variant: '', score: 0 })"
                                         >Добавить вариант ответа</v-btn>
                                     </div>
                                 </v-container>
@@ -134,7 +136,7 @@
                                 <v-btn
                                     color="blue darken-1"
                                     text
-                                    @click="createNewQuestion()"
+                                    @click="createNewQuestion"
                                 >
                                     Сохранить вопрос
                                 </v-btn>
@@ -193,6 +195,7 @@ import { mdiPlus } from '@mdi/js';
 import axios from 'axios'
 import { SERVER_URL, endpoints } from "../utils";
 import alertMixin from "../mixins/alert";
+// TODO add styles and validation
 
 export default {
     name: "QuestionsGroups",
@@ -210,7 +213,8 @@ export default {
             multiple: false,
             variants: [],
             answer: '',
-            question_photo: ''
+            question_photo: '',
+            question_max_grade: 0
         },
         groupIndex: null,
         groupName: null,
@@ -236,13 +240,14 @@ export default {
         async createNewGroup() {
             try {
                 const newGroup = { group_name: this.enteredGroupName, questions: [] }
-                const response = await axios.post(SERVER_URL + endpoints.questionGroups, newGroup)
+                const response = await axios.post(SERVER_URL + endpoints.questionsGroup, newGroup, { withCredentials: true })
                 const createdGroup = await response.data
                 this.groups.push(createdGroup)
                 this.enteredGroupName = ''
                 this.dialogGroup = false
             } catch (e) {
                 console.error(e)
+                this.raiseAlert('Невозможно утстановить соединение с сервером. Повторите попытку позже.')
             }
         },
         async createNewQuestion() {
@@ -254,9 +259,19 @@ export default {
             } else if (typeof question.answer === 'undefined') {
                 question.answer = ''
             }
-
+            question['question_max_grade'] = question.variants.reduce((prev, curr) => {
+                if (question.multiple) {
+                    return question.answer.indexOf(curr.variant) > -1 ? prev += curr.score : prev
+                }
+                return prev >= curr.score ? prev : curr.score
+            }, 0)
             try {
-                const response = await axios.put(SERVER_URL + endpoints.questionGroups,{ group_name: this.groupName, questions: [question] })
+                const questionData = {
+                    group_name: this.groupName,
+                    questions: [question]
+                }
+
+                const response = await axios.put(SERVER_URL + endpoints.questionsGroup, questionData, { withCredentials: true } )
                 const updatedGroup = await response.data
                 this.groups.splice(this.groupIndex, 1, updatedGroup)
             } catch (e) {
@@ -266,7 +281,7 @@ export default {
         },
         async getQuestionGroups() {
             try {
-                const response = await axios.get(SERVER_URL + endpoints.questionGroups)
+                const response = await axios.get(SERVER_URL + endpoints.questionsGroup, { withCredentials: true })
                 this.groups = response.data
             } catch (e) {
                 console.error(e)

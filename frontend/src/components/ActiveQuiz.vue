@@ -46,7 +46,7 @@
                             v-for="variant in quiz.questions[paginationController - 1].variants"
                             :key="variant.id"
                             :label="variant.variant"
-                            :input-value="quiz.questions[paginationController - 1].variants.find(val => val === variant.variant)"
+                            :input-value="quiz.questions[paginationController - 1].answer.find(val => val === variant.variant)"
                             @click="toggleMultipleAnswer(variant.variant)"
                         ></v-checkbox>
                     </div>
@@ -76,6 +76,7 @@
 import axios from 'axios'
 import { SERVER_URL, endpoints } from '../utils'
 import alertMixin from "../mixins/alert";
+// TODO add styles
 
 export default {
 	props: ['quiz'],
@@ -125,6 +126,7 @@ export default {
                 quizId: this.$props.quiz.id,
                 answers
             }
+            console.log(userAnswer)
             try {
                 const response = await axios.post(SERVER_URL + endpoints.userGrading, userAnswer, { withCredentials: true })
                 if (response.status === 201) {

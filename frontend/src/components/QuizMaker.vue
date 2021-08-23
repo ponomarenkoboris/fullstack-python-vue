@@ -309,21 +309,21 @@ export default {
                 }, 0)
             })
             notReactiveQuiz['publish_date'] = Math.floor(new Date(new Date(this.publishDate).getTime() - 10800000) / 1000)
-            // try {
-            //     const response = await axios.post(SERVER_URL + endpoints.quizList, {
-            //         ...notReactiveQuiz
-            //     })
-            //     if (response.status === 200) {
-            //         this.quiz = {
-            //             quiz_name: '',
-            //             description: '',
-            //             questions: []
-            //         }
-            //     }
-            // } catch (e) {
-            //     console.error(e)
-            //     this.raiseAlert("Невозмодно отправить запрос на сервер. Повторите позже.")
-            // }
+            try {
+                const response = await axios.post(SERVER_URL + endpoints.quizList, {
+                    ...notReactiveQuiz
+                })
+                if (response.status === 200) {
+                    this.quiz = {
+                        quiz_name: '',
+                        description: '',
+                        questions: []
+                    }
+                }
+            } catch (e) {
+                console.error(e)
+                this.raiseAlert("Невозмодно отправить запрос на сервер. Повторите позже.")
+            }
         },
         removeQuestion(questionId) {
             this.quiz.questions = this.quiz.questions.filter(question => question.id !== questionId)

@@ -1,6 +1,6 @@
 <template>
     <v-container>
-        <v-container class="d-flex justify-space-between px-10">
+        <v-container>
             <v-tabs>
                 <v-tab to="/manager/full-statistic/">
                     <p>Просмотр статистики</p>
@@ -12,20 +12,22 @@
                     <p>Группы вопросов</p>
                 </v-tab>
             </v-tabs>
-            <v-btn
-                class="red lighten-2"
-                @click="logout"
-            >
-                <span class="white--text">Logout</span>
-                <v-icon class="white--text">
-                    {{ logoutIcon }}
-                </v-icon>
-            </v-btn>
-            <div class="manager__info">
-                <p>Имя: <strong>{{ name }}</strong></p>
-                <p>Фамилия: <strong>{{ surname }}</strong></p>
-                <p>email: <strong>{{ email }}</strong></p>
-            </div>
+            <v-container class="d-flex justify-space-between">
+                <div class="manager__info d-flex flex-column">
+                    <p>Имя: <strong>{{ name }}</strong>&nbsp;</p>
+                    <p>Фамилия: <strong>{{ surname }}</strong>&nbsp;</p>
+                    <p>email: <strong>{{ email }}</strong>&nbsp;</p>
+                </div>
+                <v-btn
+                    class="red lighten-2"
+                    @click="logout"
+                >
+                    <span class="white--text">Logout</span>
+                    <v-icon class="white--text">
+                        {{ logoutIcon }}
+                    </v-icon>
+                </v-btn>
+            </v-container>
         </v-container>
         <v-container>
             <keep-alive>

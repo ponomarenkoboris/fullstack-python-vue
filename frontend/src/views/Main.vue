@@ -19,21 +19,22 @@
             <v-card-subtitle class="d-flex justify-center">
                 Войти как {{ loginSwitch ? 'сотрудник, чтобы пройти опросы' : 'менеджер, чтобы созавать опросы' }}
             </v-card-subtitle>
-            <v-card-actions>
-                <Login :usage="loginSwitch ? 'worker' : 'manager'"/>
+            <v-card-actions class="d-flex align-center justify-space-around">
+                <Auth :usage="loginSwitch ? 'worker' : 'manager'" actionType="login"/>
+                <Auth :usage="loginSwitch ? 'worker' : 'manager'" actionType="registration"/>
             </v-card-actions>
         </v-card>
     </v-container>
 </template>
 
 <script>
-import Login from '../components/Login.vue'
+import Auth from '../components/Auth.vue'
 import { mdiAccount , mdiAccountLock } from '@mdi/js';
 
 export default {
     name: 'Main',
     components: {
-        Login
+        Auth
     },
     computed: {
         authAs() {

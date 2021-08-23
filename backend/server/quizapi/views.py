@@ -8,9 +8,13 @@ import json, jwt, time
 from .jwt_methods import get_data_from_jwt, set_jwt
 
 class QuizView(APIView):
+    """
+    Взаимодействие с опросами
+    """
     def post(self, request):
         """
         Создание опроса
+        request: содержит JSON объект опроса
         """
         # payload = get_data_from_jwt(request.COOKIES.get('jwt'))
         # if payload is False or payload['status'] != 'manager':
@@ -144,6 +148,7 @@ class LogoutView(APIView):
         response = Response()
         response.delete_cookie('jwt')
         response.status = status.HTTP_200_OK
+
         response.data = {
             'message': 'success'
         }
