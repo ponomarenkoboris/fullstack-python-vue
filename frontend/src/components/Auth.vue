@@ -1,7 +1,7 @@
 <template>
-    <v-row justify="center">
-        <v-btn id="btn_login" @click="dialog = true" color="primary">
-            <span id="login">{{ actionType === 'login' ? 'Войти' : 'Зарегистрироваться' }}</span>
+    <v-row justify="center" style="margin-top: 0;">
+        <v-btn @click="dialog = true" :color="actionType === 'login' ? 'green' : 'primary'">
+            {{ actionType === 'login' ? 'Войти' : 'Зарегистрироваться' }}
         </v-btn>
         <v-dialog v-model="dialog" persistent max-width="600px">
             <v-card>
@@ -32,7 +32,6 @@
                 <small>*обязательное поле</small>
                 </v-card-text>
                 <v-card-actions>
-                    <v-spacer></v-spacer>
                     <v-btn color="blue darken-1" id="closeModal" text @click="closeModal">Закрыть</v-btn>
                     <v-btn color="blue darken-1" text @click="auth">{{ actionType === 'login' ? 'Войти' : 'Зарегистрироваться' }}</v-btn>
                 </v-card-actions>

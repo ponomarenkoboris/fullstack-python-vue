@@ -9,7 +9,7 @@ const logoutMixin = {
     methods: {
         async logout() {
             try {
-                const response = await axios.post(SERVER_URL + endpoints.logout)
+                const response = await axios.post(SERVER_URL + endpoints.logout, {}, { withCredentials: true })
                 if (response.status === 200) {
                     localStorage.clear()
                     this.$router.replace('/')

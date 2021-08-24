@@ -9,6 +9,7 @@ fullstack_dj_app.sqlite3
 /dist
 /frontend/tests
 /data
+nginx/
 
 .env.local
 .env.*.local

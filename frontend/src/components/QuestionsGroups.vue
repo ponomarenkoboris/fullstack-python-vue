@@ -155,6 +155,10 @@
                                 <v-icon>{{ addIcon }}</v-icon>
                                 Добавить вопрос
                             </v-btn>
+                            <v-btn color="red lighten-3" @click="removeGroup(group.id)" style="margin-left: 30px; margin-right: 20px;">
+                                <v-icon>{{ removeIcon }}</v-icon>
+                                Удалить группу
+                            </v-btn>
                         </div>
                     </v-expansion-panel-header>
                     <v-expansion-panel-content>
@@ -192,6 +196,7 @@
 
 <script>
 import { mdiPlus } from '@mdi/js';
+import { mdiDelete } from '@mdi/js';
 import axios from 'axios'
 import { SERVER_URL, endpoints } from "../utils";
 import alertMixin from "../mixins/alert";
@@ -204,6 +209,7 @@ export default {
         dialogGroup: false,
         dialogQuestion: false,
         addIcon: mdiPlus,
+        removeIcon: mdiDelete,
         questionRules: [
             value => !!value.trim() || 'Обязательное поле'
         ],
@@ -237,6 +243,22 @@ export default {
         }
     },
     methods: {
+        async removeGroup(groupId) {
+            try {
+                const response = await axios.delete(SERVER_URL + endpoints.questionsGroup, {
+                    withCredentials: true,
+                    data: {
+                        group_id: groupId
+                    }
+                })
+                if (response.status === 200) {
+                    this.groups = response.data
+                }
+            } catch(e) {
+                console.log(e)
+                this.raiseAlert('Неполучается выполнить удаление.')
+            }
+        },
         async createNewGroup() {
             try {
                 const newGroup = { group_name: this.enteredGroupName, questions: [] }

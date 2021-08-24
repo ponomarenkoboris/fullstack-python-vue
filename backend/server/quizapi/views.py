@@ -16,9 +16,9 @@ class QuizView(APIView):
         Создание опроса
         request: содержит JSON объект опроса
         """
-        # payload = get_data_from_jwt(request.COOKIES.get('jwt'))
-        # if payload is False or payload['status'] != 'manager':
-        #     return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
+        payload = get_data_from_jwt(request.COOKIES.get('jwt'))
+        if payload is False or payload['status'] != 'manager':
+            return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
 
         serialized_quiz = serializers.QuizSerializer(data=request.data)
         if serialized_quiz.is_valid():
@@ -40,8 +40,8 @@ class QuizView(APIView):
                 done_quiz_list - список пройденных вопросов
         """
         payload = get_data_from_jwt(request.COOKIES.get('jwt'))
-        # if payload is False or payload['status'] != 'worker':
-        #     return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
+        if payload is False or payload['status'] != 'worker':
+            return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
 
         user_answers = UserAnswers.objects.filter(user_id=payload['id'])
         serialized_answers = serializers.UserAnswersSerializer(user_answers, many=True)
@@ -74,9 +74,9 @@ class QuizView(APIView):
 class QuestionListView(APIView):
 
     def get(self, request):
-        # payload = get_data_from_jwt(request.COOKIES.get('jwt'))
-        # if payload is False or payload['status'] != 'manager':
-        #     return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
+        payload = get_data_from_jwt(request.COOKIES.get('jwt'))
+        if payload is False or payload['status'] != 'manager':
+            return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
 
         questions_list = Question.objects.all()
         serialized_questions = serializers.QuestionSerializer(questions_list, many=True)
@@ -156,10 +156,16 @@ class LogoutView(APIView):
 
 # Question Group
 class QuestionGroupView(APIView):
+    """
+    API групп вопросов
+    """
     def get(self, request):
-        # payload = get_data_from_jwt(request.COOKIES.get('jwt'))
-        # if payload is False or payload['auth_status'] != 'manager':
-        #     return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
+        """
+        Поучение списка групп вопросов
+        """
+        payload = get_data_from_jwt(request.COOKIES.get('jwt'))
+        if payload is False or payload['status'] != 'manager':
+            return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
 
         groups = QuestionGroup.objects.all()
         serialized_groups = serializers.QuestionGroupSerializer(groups, many=True)
@@ -169,9 +175,9 @@ class QuestionGroupView(APIView):
         """
         Создание новой группы вопросов
         """
-        # payload = get_data_from_jwt(request.COOKIES.get('jwt'))
-        # if payload is False or payload['auth_status'] != 'manager':
-        #     return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
+        payload = get_data_from_jwt(request.COOKIES.get('jwt'))
+        if payload is False or payload['status'] != 'manager':
+            return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
 
         new_group = serializers.QuestionGroupSerializer(data=request.data)
         new_group.is_valid(raise_exception=True)
@@ -182,9 +188,9 @@ class QuestionGroupView(APIView):
         """
         Добавление вопросов в группу
         """
-        # payload = get_data_from_jwt(request.COOKIES.get('jwt'))
-        # if payload is False or payload['auth_status'] != 'manager':
-        #     return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
+        payload = get_data_from_jwt(request.COOKIES.get('jwt'))
+        if payload is False or payload['status'] != 'manager':
+            return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
 
         group_name = request.data['group_name']
         group = QuestionGroup.objects.all().filter(group_name=group_name).first()
@@ -199,7 +205,7 @@ class QuestionGroupView(APIView):
         Удаление группы вопросов
         """
         payload = get_data_from_jwt(request.COOKIES.get('jwt'))
-        if payload is False or payload['auth_status'] != 'manager':
+        if payload is False or payload['status'] != 'manager':
             return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
 
         QuestionGroup.objects.filter(id=request.data.pop('group_id')).delete()
@@ -215,8 +221,8 @@ class GradingUser(APIView):
 
         payload = get_data_from_jwt(request.COOKIES.get('jwt'))
 
-        # if payload is False or payload['status'] != 'worker':
-        #     return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
+        if payload is False or payload['status'] != 'worker':
+            return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
 
         quiz_statistic = {}
 
@@ -298,9 +304,9 @@ class GradingUser(APIView):
 # Отправка менеджеру полной статистики прохождения опросов
 class StatisticView(APIView):
     def get(self, request):
-        # payload = get_data_from_jwt(request.COOKIES.get('jwt'))
-        # if payload is False or payload['auth_status'] != 'manager':
-        #     return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
+        payload = get_data_from_jwt(request.COOKIES.get('jwt'))
+        if payload is False or payload['status'] != 'manager':
+            return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
 
         quiz_statistic_instance = QuizStatistic.objects.all()
         serialized_statistic = serializers.QuizStatisticSerializer(quiz_statistic_instance, many=True)

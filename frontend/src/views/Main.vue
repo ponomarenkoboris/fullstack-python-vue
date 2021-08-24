@@ -13,7 +13,7 @@
             </v-card-title>
             <v-card-subtitle class="d-flex justify-center align-center pt-6">
                 <v-icon x-large>
-                    {{ userIcon }}
+                    {{ loginSwitch ? userIcon : adminIcon }}
                 </v-icon>
             </v-card-subtitle>
             <v-card-subtitle class="d-flex justify-center">
