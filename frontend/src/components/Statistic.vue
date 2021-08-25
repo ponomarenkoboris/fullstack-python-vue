@@ -18,8 +18,15 @@
             <v-card>
                 <v-toolbar
                     color="light-green lighten-2 black--text"
+                    height="100px"
                     dark
-                >Опрос: {{ fullStatisticData.quiz_name }}</v-toolbar>
+                >
+                    <v-container>
+                        <p style="margin: 0">Опрос: {{ fullStatisticData.quiz_name }}</p>
+                        <p style="margin: 0">Пользователь: {{ fullStatisticData.user_name }} {{ fullStatisticData.user_surname }}</p>
+                        <p style="margin: 0">Email: {{ fullStatisticData.user_email }}</p>
+                    </v-container>
+                </v-toolbar>
                 <v-card-text class="mt-5">
                     <v-sheet
                         rounded
@@ -94,6 +101,8 @@ export default {
     methods: {
         async getStatistic() {
             try {
+                const refresh = await axios.post(SERVER_URL + endpoints.refresh, { email: localStorage.getItem('manager_email') }, { withCredentials: true })
+                if (refresh.status !== 200) throw new Error({ message: 'Not authorized' })
                 const response = await axios.get(SERVER_URL + endpoints.quizFullStatistic, { withCredentials: true })
                 if (response.status === 200) {
                     const validStatistic = response.data.map(quizStatistic => {

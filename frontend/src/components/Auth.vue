@@ -1,6 +1,9 @@
 <template>
     <v-row justify="center" style="margin-top: 0;">
-        <v-btn @click="dialog = true" :color="actionType === 'login' ? 'green' : 'primary'">
+        <v-btn
+            @click="dialog = true"
+            :color="actionType === 'login' ? 'green white--text' : 'primary'"
+        >
             {{ actionType === 'login' ? 'Войти' : 'Зарегистрироваться' }}
         </v-btn>
         <v-dialog v-model="dialog" persistent max-width="600px">

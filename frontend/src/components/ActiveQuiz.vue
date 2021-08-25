@@ -126,14 +126,17 @@ export default {
                 quizId: this.$props.quiz.id,
                 answers
             }
-            console.log(userAnswer)
+
             try {
+                const refresh = await axios.post(SERVER_URL + endpoints.refresh, { email: localStorage.getItem('worker_email') }, { withCredentials: true })
+                if (refresh.status !== 200) throw new Error({ message: 'Not authorized' })
                 const response = await axios.post(SERVER_URL + endpoints.userGrading, userAnswer, { withCredentials: true })
                 if (response.status === 201) {
                     this.dialog = false
-                    this.$emit('updatePollsList', 'hello from child')
+                    this.$emit('updatePollsList')
                 }
             } catch (e) {
+                console.error(e)
                 this.raiseAlert('Неудалось отправить ответы. Попробуйте позже.')
             }
         },

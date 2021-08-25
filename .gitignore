@@ -10,6 +10,7 @@ fullstack_dj_app.sqlite3
 /frontend/tests
 /data
 nginx/
+docker-compose.yml
 
 .env.local
 .env.*.local

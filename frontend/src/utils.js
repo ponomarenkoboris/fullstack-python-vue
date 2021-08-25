@@ -8,6 +8,6 @@ export const endpoints = {
     quizFullStatistic: 'quiz-full-statistic/',
     login: 'login/',
     register: 'register/',
-    auth: 'auth/',
-    logout: 'logout/'
+    logout: 'logout/',
+    refresh: 'refresh/'
 }

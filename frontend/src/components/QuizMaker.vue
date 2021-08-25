@@ -42,7 +42,7 @@
                         >
                     </div>
 
-                    <div class="d-flex justify-center">
+                    <div class="d-flex justify-center mb-3">
                         <v-radio-group
                             v-model="questionObj.multiple"
                             row
@@ -52,7 +52,14 @@
                             <v-radio label="Несколько ответов" :value="true"></v-radio>
                         </v-radio-group>
                     </div>
-
+                    <div class="d-flex justify-center">
+                        <v-btn
+                            @click="() => questionObj.variants.push({ id: questionObj.variants.length + 1, variant: '', score: 0 })"
+                        >
+                            <v-icon class="mr-3">{{ addVariantIcon }}</v-icon>
+                            Добавить вариант ответа
+                        </v-btn>
+                    </div>
                     <!-- If one answer -->
                     <v-container v-if="!questionObj.multiple" class="d-flex justify-center">
                         <v-radio-group
@@ -86,7 +93,7 @@
                     <v-container v-else>
                         <v-row
                             v-for="variant in questionObj.variants" :key="variant.id"
-                            class="d-flex justify-center align-center"
+                            class="d-flex justify-center align-center mt-3"
                         >
                             <v-checkbox
                                 v-model="questionObj.answer"
@@ -107,14 +114,9 @@
                             </v-hover>
                         </v-row>
                     </v-container>
-                    <div class="d-flex justify-center justify-space-between">
-                        <v-btn
-                            @click="() => questionObj.variants.push({ id: questionObj.variants.length + 1, variant: '', score: 0 })"
-                        >Добавить вариант ответа</v-btn>
-                    </div>
                 </div>
                 <v-row justify="space-between" align="center" class="mt-3">
-                    <v-btn @click="appendQuestion()">Добавить вопрос</v-btn>
+                    <v-btn @click="appendQuestion()"><v-icon class="mr-3">{{ addQuestionIcon  }}</v-icon>Добавить вопрос</v-btn>
 
                     <!-- START Dialog for adding created question -->
                     <v-dialog
@@ -129,6 +131,7 @@
                                 v-bind="attrs"
                                 v-on="on"
                             >
+                                <v-icon class="mr-3">{{ addQuestionFromGroupIcon }}</v-icon>
                                 Добавить вопрос из группы
                             </v-btn>
                         </template>
@@ -184,22 +187,39 @@
             <v-divider class="mb-6 mt-6"></v-divider>
             <!-- Calendar -->
             <v-container class="d-flex flex-column align-center">
-                <strong>Выбирете день, когда опрос будет доступен для прохождения</strong>
-                <v-date-picker
-                    class="mt-2"
-                    locale="ru-RU"
-                    v-model="publishDate"
-                />
+                <v-sheet
+                    class="rounded-lg pa-4 mb-2 d-flex flex-column align-center"
+                    elevation="5"
+                    width="520"
+                >
+                    <strong>Выбирете день, когда опрос будет доступен для прохождения</strong>
+                    <v-date-picker
+                        class="mt-2"
+                        locale="ru-RU"
+                        v-model="publishDate"
+                        full-width
+                    />
+                </v-sheet>
             </v-container>
             <!-- end calendar -->
             <v-container class="d-flex justify-center">
-                <v-btn @click="publishQuiz" :disabled="!quiz.questions.length" color="light-green accent-2">Опубликовать опрос</v-btn>
+                <v-btn @click="publishQuiz" :disabled="!quiz.questions.length" color="light-green accent-2">
+                    <v-icon class="mr-2">{{ publishQuizIcon }}</v-icon>
+                    Опубликовать опрос
+                </v-btn>
             </v-container>
         </v-container>
     </v-form>
 </template>
 <script>
-import { mdiDelete, mdiClose } from '@mdi/js';
+import {
+    mdiDelete,
+    mdiClose,
+    mdiPencilPlus,
+    mdiPlusBoxMultiple,
+    mdiCloudCheck,
+    mdiConnection
+} from '@mdi/js';
 import axios from 'axios'
 import { SERVER_URL, endpoints } from "../utils";
 import alertMixin from "../mixins/alert";
@@ -237,7 +257,6 @@ export default {
         inputNumberRules: [
             value => value.toString().length >= 0 || 'Необходимо ввести число'
         ],
-        questionsCount: 0,
         quiz: {
             quiz_name: '',
             description: '',
@@ -245,7 +264,11 @@ export default {
         },
         checkboxValue: '',
         trashIcon: mdiDelete,
-        removeVariantIcon: mdiClose
+        removeVariantIcon: mdiClose,
+        addVariantIcon: mdiPencilPlus,
+        addQuestionIcon: mdiPlusBoxMultiple,
+        publishQuizIcon: mdiCloudCheck,
+        addQuestionFromGroupIcon: mdiConnection
     }),
     watch: {
         dialog(_, oldDialogValue) {
@@ -255,10 +278,11 @@ export default {
     methods: {
         appendQuestion(fetchedQuestion = false) {
             if (fetchedQuestion) {
+                console.log(this.quiz.questions.length)
                 let question = {}
                 this.questionGroups.forEach(group => {
-                    const que = group.questions.find(question => question.id === +this.selectedQuestion)
-                    if (que) question = {...que}
+                    const specificQuestion = group.questions.find(question => question.id === +this.selectedQuestion)
+                    if (specificQuestion) question = { ...specificQuestion, id: this.quiz.questions.length }
                 })
                 if (question.multiple) {
                     question.answer = question.answer.split(',').map(answer => {
@@ -269,21 +293,18 @@ export default {
                 this.dialog = false
             } else {
                 this.quiz.questions.push({
-                    id: this.questionsCount,
+                    id: this.quiz.questions.length,
                     question: '',
                     multiple: false,
                     variants: [],
                     answer: []
                 })
             }
-            this.questionsCount++
-        },
-
-        async appendQuestionToGroup() {
-
         },
         async fetchQuestionGroups() {
             try {
+                const refresh = await axios.post(SERVER_URL + endpoints.refresh, { email: localStorage.getItem('manager_email') }, { withCredentials: true })
+                if (refresh.status !== 200) throw new Error({ message: 'Not authorized' })
                 const response = await axios.get(SERVER_URL + endpoints.questionsGroup, { withCredentials: true })
                 this.questionGroups = response.data
             } catch (e) {
@@ -324,15 +345,18 @@ export default {
             })
             notReactiveQuiz['publish_date'] = Math.floor(new Date(new Date(this.publishDate).getTime() - 10800000) / 1000)
             try {
+                const refresh = await axios.post(SERVER_URL + endpoints.refresh, { email: localStorage.getItem('manager_email') }, { withCredentials: true })
+                if (refresh.status !== 200) throw new Error({ message: 'Not authorized' })
                 const response = await axios.post(SERVER_URL + endpoints.quizList, {
                     ...notReactiveQuiz
-                })
+                }, { withCredentials: true })
                 if (response.status === 200) {
                     this.quiz = {
                         quiz_name: '',
                         description: '',
                         questions: []
                     }
+                    this.publishDate = (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)
                 }
             } catch (e) {
                 console.error(e)

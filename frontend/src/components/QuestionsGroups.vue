@@ -151,11 +151,11 @@
                     <v-expansion-panel-header>
                         <p>{{ group.group_name }}</p>
                         <div class="d-flex justify-end">
-                            <v-btn @click="() => { dialogQuestion = true; groupIndex = index; groupName = group.group_name}">
+                            <v-btn @click="(e) => { e.stopPropagation(); dialogQuestion = true; groupIndex = index; groupName = group.group_name}">
                                 <v-icon>{{ addIcon }}</v-icon>
                                 Добавить вопрос
                             </v-btn>
-                            <v-btn color="red lighten-3" @click="removeGroup(group.id)" style="margin-left: 30px; margin-right: 20px;">
+                            <v-btn color="red lighten-3" @click="removeGroup($event, group.id)" style="margin-left: 30px; margin-right: 20px;">
                                 <v-icon>{{ removeIcon }}</v-icon>
                                 Удалить группу
                             </v-btn>
@@ -243,8 +243,11 @@ export default {
         }
     },
     methods: {
-        async removeGroup(groupId) {
+        async removeGroup(e, groupId) {
+            e.stopPropagation()
             try {
+                const refresh = await axios.post(SERVER_URL + endpoints.refresh, { email: localStorage.getItem('manager_email') }, { withCredentials: true })
+                if (refresh.status !== 200) throw new Error({ message: 'Not authorized' })
                 const response = await axios.delete(SERVER_URL + endpoints.questionsGroup, {
                     withCredentials: true,
                     data: {
@@ -261,6 +264,8 @@ export default {
         },
         async createNewGroup() {
             try {
+                const refresh = await axios.post(SERVER_URL + endpoints.refresh, { email: localStorage.getItem('manager_email') }, { withCredentials: true })
+                if (refresh.status !== 200) throw new Error({ message: 'Not authorized' })
                 const newGroup = { group_name: this.enteredGroupName, questions: [] }
                 const response = await axios.post(SERVER_URL + endpoints.questionsGroup, newGroup, { withCredentials: true })
                 const createdGroup = await response.data
@@ -287,26 +292,31 @@ export default {
                 }
                 return prev >= curr.score ? prev : curr.score
             }, 0)
+            const questionData = {
+                group_name: this.groupName,
+                questions: [question]
+            }
             try {
-                const questionData = {
-                    group_name: this.groupName,
-                    questions: [question]
-                }
-
+                const refresh = await axios.post(SERVER_URL + endpoints.refresh, { email: localStorage.getItem('manager_email') }, { withCredentials: true })
+                if (refresh.status !== 200) throw new Error({ message: 'Not authorized' })
                 const response = await axios.put(SERVER_URL + endpoints.questionsGroup, questionData, { withCredentials: true } )
                 const updatedGroup = await response.data
                 this.groups.splice(this.groupIndex, 1, updatedGroup)
             } catch (e) {
                 console.error(e)
+                this.raiseAlert('Неудалось добавить новый вопрос. Попробуйте позже.')
             }
             this.dialogQuestion = false
         },
         async getQuestionGroups() {
             try {
+                const refresh = await axios.post(SERVER_URL + endpoints.refresh, { email: localStorage.getItem('manager_email') }, { withCredentials: true })
+                if (refresh.status !== 200) throw new Error({ message: 'Not authorized' })
                 const response = await axios.get(SERVER_URL + endpoints.questionsGroup, { withCredentials: true })
                 this.groups = response.data
             } catch (e) {
                 console.error(e)
+                this.raiseAlert('Неудалось получить список групп опросов. Попробуйте позже.')
             }
         },
         changeQuestionPhoto(event) {

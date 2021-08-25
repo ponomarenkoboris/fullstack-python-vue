@@ -1,13 +1,13 @@
 <template>
-    <v-container class="d-flex justify-space-around flex-column">
-        <v-sheet class="pa-5 d-flex justify-center">
+    <v-container class="d-flex justify-center align-center flex-column" style="width: 100vw; height: 80vh;">
+        <v-sheet>
             <v-switch
                 v-model="loginSwitch"
                 inset
                 :label="`Войти как ${ authAs }`"
             ></v-switch>
         </v-sheet>
-        <v-card class="mx-auto my-12 d-flex flex-column justify-center pb-6" width="374">
+        <v-card class="pb-6" width="374">
             <v-card-title class="d-flex justify-center">
                 Войти как {{ authAs }}
             </v-card-title>

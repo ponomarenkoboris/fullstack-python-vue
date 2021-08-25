@@ -108,6 +108,8 @@ export default {
     methods: {
         async getQuizList() {
             try {
+                const refresh = await axios.post(SERVER_URL + endpoints.refresh, { email: localStorage.getItem('worker_email') }, { withCredentials: true })
+                if (refresh.status !== 200) throw new Error({ message: 'Not authorized' })
                 const response = await axios.get(SERVER_URL + endpoints.quizList, { withCredentials: true })
                 if (response.status === 200) {
                     const { done_quiz_list: donePolls, quiz_list: quizList } = response.data
@@ -116,6 +118,7 @@ export default {
                 }
                 this.requestStatus = true
             } catch (error) {
+                console.error(error)
                 this.raiseAlert('Неудалось выполнить загрузку данных. Повторите позже.')
                 this.requestStatus = true
             }

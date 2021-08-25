@@ -13,7 +13,6 @@ class TimestampField(serializers.Field):
     def to_internal_value(self, data):
         local_tz = pytz.timezone('Europe/Moscow')
         uts_date = datetime.fromtimestamp(data).replace(tzinfo=local_tz)
-        print('uts_date -->> ', uts_date)
         return uts_date
 
 class VariantSerializer(serializers.ModelSerializer):
@@ -88,7 +87,6 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'email', 'surname', 'password', 'auth_status']
         extra_kwargs = {
             'password': {'write_only': True},
-            'auth_status': {'write_only': True}
         }
 
     def create(self, validated_data):
