@@ -9,7 +9,7 @@
         <v-dialog v-model="dialog" persistent max-width="600px">
             <v-card>
                 <v-card-title>
-                    <span class="text-h5">Вход в систему</span>
+                    <span class="text-h5">{{ actionType === 'login' ? 'Вход в систему' : 'Регистрация' }}</span>
                 </v-card-title>
                 <v-card-text>
                     <v-form v-model="isValid" ref="form">
@@ -115,6 +115,7 @@ export default {
             try {
                 const apiPath = this.$props.actionType === 'login' ? endpoints.login : endpoints.register
                 const response = await axios.post(SERVER_URL + apiPath, authData, { withCredentials: true })
+                console.log(response)
                 if (response.status === 200) {
                     localStorage.clear()
                     localStorage.setItem(`${authStatus}_email`, response.data['email'])

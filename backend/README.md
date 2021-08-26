@@ -11,7 +11,7 @@ docker build -t quiz-backend-root .
 ```
 ### Запуск контейнера
 ```shell
-docker run -it -p 8080:5555 --rm --name quiz-server quiz-backend-root
+docker run -p 8000:8000 --rm --name quiz-server quiz-backend-root
 ```
 
 ## Локально: 
@@ -21,5 +21,5 @@ pip install -r requirements.txt
 ```
 #### Запуск на локально
 ```shell
-python manage.py runserver 0.0.0.0:5555
+python manage.py runserver 127.0.0.1:5555
 ```

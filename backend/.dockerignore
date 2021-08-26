@@ -1,0 +1,4 @@
+venv
+server/quizapi/__pycache__/
+server/quizapi/migrations/__pycache__/
+server/quiz.sqlite3
