@@ -115,7 +115,6 @@ export default {
             try {
                 const apiPath = this.$props.actionType === 'login' ? endpoints.login : endpoints.register
                 const response = await axios.post(SERVER_URL + apiPath, authData, { withCredentials: true })
-                console.log(response)
                 if (response.status === 200) {
                     localStorage.clear()
                     localStorage.setItem(`${authStatus}_email`, response.data['email'])

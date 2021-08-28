@@ -1,10 +1,10 @@
 #Проект для создания опросов [Frontend]
 
-## Скачивание папки проекта из репозитория 
+## Скачивание папки проекта из репозитория:
 ```
 git clone https://github.com/ponomarenkoboris/fullstack-python-vue.git
 ```
-## Docker:
+## Запуск преокта с помощью Docker:
 ### Создание образа контейнера
 ```shell
 docker build -t quiz-frontend-root .
@@ -23,7 +23,7 @@ yarn install
 ```
 yarn serve
 ```
-#### Создание папки dist
+#### Создание production версии
 ```
 yarn build
 ```

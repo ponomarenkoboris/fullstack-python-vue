@@ -1,0 +1,4 @@
+.idea
+quiz.sqlite3
+venv
+staticfiles

@@ -1,4 +1,6 @@
 from pathlib import Path
+import os
+import django_heroku
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -8,13 +10,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-uba!w+$thal%&l5i56w7*$dg@vb(piuv&!8!7cr$h=9fcl#v*4'
-
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", 'secret')
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = bool(os.environ.get("DJANGO_DEBUG", True))
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['quiz-client-vue.herokuapp.com', '127.0.0.1', 'localhost:8080']
+# ALLOW_HOSTS = ['*']
 
 # Application definition
 
@@ -118,6 +119,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'quizapi.User'
 
+# CSRF
+CSRF_COOKIE_SAMESITE = "None"
+CSRF_COOKIE_HTTPONLY = True
+
+# SESSION
+SESSION_COOKIE_SAMESITE = "None"
+SESSION_COOKIE_HTTPONLY = True
+
 # CORS
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = [
@@ -130,7 +139,11 @@ CORS_ALLOW_METHODS = [
     "PUT",
     "DELETE"
 ]
+
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:8080',
-    'http://127.0.0.1:8080'
+    'http://127.0.0.1:8080',
+    'http://192.168.1.68:8080',
+    'https://quiz-client-vue.herokuapp.com'
 ]
+django_heroku.settings(locals())

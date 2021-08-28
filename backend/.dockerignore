@@ -1,4 +1,5 @@
 venv
-server/quizapi/__pycache__/
-server/quizapi/migrations/__pycache__/
-server/quiz.sqlite3
+quizapi/__pycache__/
+quizapi/migrations/__pycache__/
+quiz.sqlite3
+staticfiles

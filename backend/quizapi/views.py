@@ -6,7 +6,7 @@ from .models import Quiz, User, Question, QuestionGroup, UserAnswers, QuizStatis
 from . import serializers
 import json, jwt, time
 from .jwt_methods import get_data_from_jwt, set_jwt
-
+# TODO добавить samesite атрибут для всех set_cookies
 class QuizView(APIView):
     """
     Взаимодействие с опросами
@@ -16,8 +16,9 @@ class QuizView(APIView):
         Создание опроса
         request: содержит JSON объект опроса
         """
+        token = request.COOKIES.get('jwt')
         try:
-            payload = get_data_from_jwt(request.COOKIES.get('jwt'))
+            payload = get_data_from_jwt(token)
             if payload is False or payload['status'] != 'manager':
                 return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
         except jwt.ExpiredSignatureError:

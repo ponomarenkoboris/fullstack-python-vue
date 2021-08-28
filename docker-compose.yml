@@ -3,13 +3,14 @@ version: '3'
 services: 
   server:
     build: ./backend
-    command: python ./backend/server/manage.py runserver 0.0.0.0:8000
+    command: python ./backend/manage.py runserver 0.0.0.0:8000
     volumes: 
       - .:/backend
     ports: 
       - "8000:8000"
   client: 
     build: ./frontend
+    hostname: localhost
     volumes: 
       - .:/frontend
     ports: 

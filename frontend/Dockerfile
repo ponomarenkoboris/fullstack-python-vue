@@ -4,7 +4,7 @@ RUN npm install -g http-server
 
 WORKDIR quiz-client/
 COPY package.json ./
-RUN yarn
+RUN yarn install
 
 COPY . .
 RUN yarn build
