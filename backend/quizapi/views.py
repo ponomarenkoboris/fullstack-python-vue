@@ -17,12 +17,12 @@ class QuizView(APIView):
         request: содержит JSON объект опроса
         """
         token = request.COOKIES.get('jwt')
-        try:
-            payload = get_data_from_jwt(token)
-            if payload is False or payload['status'] != 'manager':
-                return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
-        except jwt.ExpiredSignatureError:
-            return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'ExpiredSignatureError'})
+        # try:
+        #     payload = get_data_from_jwt(token)
+        #     if payload is False or payload['status'] != 'manager':
+        #         return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
+        # except jwt.ExpiredSignatureError:
+        #     return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'ExpiredSignatureError'})
 
         serialized_quiz = serializers.QuizSerializer(data=request.data)
         if serialized_quiz.is_valid():
@@ -43,12 +43,14 @@ class QuizView(APIView):
                 quiz_list - список не пройденных опросов,
                 done_quiz_list - список пройденных вопросов
         """
-        try:
-            payload = get_data_from_jwt(request.COOKIES.get('jwt'))
-            if payload is False or payload['status'] != 'worker':
-                return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
-        except jwt.ExpiredSignatureError:
-            return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'ExpiredSignatureError'})
+        # TODO on production
+        payload = get_data_from_jwt(request.COOKIES.get('jwt'))
+        # try:
+        #     payload = get_data_from_jwt(request.COOKIES.get('jwt'))
+        #     if payload is False or payload['status'] != 'worker':
+        #         return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
+        # except jwt.ExpiredSignatureError:
+        #     return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'ExpiredSignatureError'})
 
         user_answers = UserAnswers.objects.filter(user_id=payload['id'])
         serialized_answers = serializers.UserAnswersSerializer(user_answers, many=True)
@@ -81,12 +83,13 @@ class QuizView(APIView):
 class QuestionListView(APIView):
 
     def get(self, request):
-        try:
-            payload = get_data_from_jwt(request.COOKIES.get('jwt'))
-            if payload is False or payload['status'] != 'manager':
-                return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
-        except jwt.ExpiredSignatureError:
-            return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'ExpiredSignatureError'})
+        # TODO on production
+        # try:
+        #     payload = get_data_from_jwt(request.COOKIES.get('jwt'))
+        #     if payload is False or payload['status'] != 'manager':
+        #         return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
+        # except jwt.ExpiredSignatureError:
+        #     return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'ExpiredSignatureError'})
 
         questions_list = Question.objects.all()
         serialized_questions = serializers.QuestionSerializer(questions_list, many=True)
@@ -104,7 +107,8 @@ class RegisterView(APIView):
         token = set_jwt(new_user.data['id'], request.data['auth_status'])
 
         response = Response()
-        response.set_cookie(key='jwt', value=token, httponly=True)
+        # TODO on production response.set_cookie(key='jwt', value=token, httponly=True, samesite='None', secure=True, path='/')
+        response.set_cookie(key='jwt', value=token)
         response.data = new_user.data
 
         return response
@@ -130,8 +134,10 @@ class RefreshView(APIView):
             user_instance = User.objects.filter(email=user_email).first()
             serialized_user = serializers.UserSerializer(user_instance)
             token = set_jwt(serialized_user.data.pop('id'), serialized_user.data.pop('auth_status'))
+
             response = Response()
-            response.set_cookie(key='jwt', value=token, httponly=True)
+            # TODO on production response.set_cookie(key='jwt', value=token, httponly=True, samesite='None', secure=True, path='/')
+            response.set_cookie(key='jwt', value=token)
             response.status_code = 200
             return response
 
@@ -157,7 +163,8 @@ class LoginView(APIView):
         token = set_jwt(user.id, user.auth_status)
 
         response = Response()
-        response.set_cookie(key='jwt', value=token, httponly=True)
+        # TODO on production response.set_cookie(key='jwt', value=token, httponly=True, samesite='None', secure=True, path='/')
+        response.set_cookie(key='jwt', value=token)
         response.data = {
             "name": user.name,
             "surname": user.surname,
@@ -166,9 +173,11 @@ class LoginView(APIView):
         return response
 
 class LogoutView(APIView):
+
     def post(self, request):
         response = Response()
-        response.delete_cookie('jwt')
+        # TODO on production response.delete_cookie(key='jwt', samesite='None', path='/')
+        response.delete_cookie(key='jwt')
         response.status = status.HTTP_200_OK
 
         response.data = {
@@ -185,12 +194,13 @@ class QuestionGroupView(APIView):
         """
         Поучение списка групп вопросов
         """
-        try:
-            payload = get_data_from_jwt(request.COOKIES.get('jwt'))
-            if payload is False or payload['status'] != 'manager':
-                return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
-        except jwt.ExpiredSignatureError:
-            return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'ExpiredSignatureError'})
+        # TODO on production
+        # try:
+        #     payload = get_data_from_jwt(request.COOKIES.get('jwt'))
+        #     if payload is False or payload['status'] != 'manager':
+        #         return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
+        # except jwt.ExpiredSignatureError:
+        #     return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'ExpiredSignatureError'})
 
         groups = QuestionGroup.objects.all()
         serialized_groups = serializers.QuestionGroupSerializer(groups, many=True)
@@ -200,12 +210,13 @@ class QuestionGroupView(APIView):
         """
         Создание новой группы вопросов
         """
-        try:
-            payload = get_data_from_jwt(request.COOKIES.get('jwt'))
-            if payload is False or payload['status'] != 'manager':
-                return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
-        except jwt.ExpiredSignatureError:
-            return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'ExpiredSignatureError'})
+        # TODO on production
+        # try:
+        #     payload = get_data_from_jwt(request.COOKIES.get('jwt'))
+        #     if payload is False or payload['status'] != 'manager':
+        #         return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
+        # except jwt.ExpiredSignatureError:
+        #     return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'ExpiredSignatureError'})
 
         new_group = serializers.QuestionGroupSerializer(data=request.data)
         new_group.is_valid(raise_exception=True)
@@ -216,12 +227,13 @@ class QuestionGroupView(APIView):
         """
         Добавление вопросов в группу
         """
-        try:
-            payload = get_data_from_jwt(request.COOKIES.get('jwt'))
-            if payload is False or payload['status'] != 'manager':
-                return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
-        except jwt.ExpiredSignatureError:
-            return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'ExpiredSignatureError'})
+        # TODO on production
+        # try:
+        #     payload = get_data_from_jwt(request.COOKIES.get('jwt'))
+        #     if payload is False or payload['status'] != 'manager':
+        #         return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
+        # except jwt.ExpiredSignatureError:
+        #     return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'ExpiredSignatureError'})
 
         group_name = request.data['group_name']
         group = QuestionGroup.objects.all().filter(group_name=group_name).first()
@@ -235,12 +247,13 @@ class QuestionGroupView(APIView):
         """
         Удаление группы вопросов
         """
-        try:
-            payload = get_data_from_jwt(request.COOKIES.get('jwt'))
-            if payload is False or payload['status'] != 'manager':
-                return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
-        except jwt.ExpiredSignatureError:
-            return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'ExpiredSignatureError'})
+        # TODO on production
+        # try:
+        #     payload = get_data_from_jwt(request.COOKIES.get('jwt'))
+        #     if payload is False or payload['status'] != 'manager':
+        #         return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
+        # except jwt.ExpiredSignatureError:
+        #     return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'ExpiredSignatureError'})
 
         QuestionGroup.objects.filter(id=request.data.pop('group_id')).delete()
         groups = QuestionGroup.objects.all()
@@ -253,12 +266,14 @@ class GradingUser(APIView):
         quiz_id = request.data['quizId']
         answers = request.data['answers']
 
-        try:
-            payload = get_data_from_jwt(request.COOKIES.get('jwt'))
-            if payload is False or payload['status'] != 'worker':
-                return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
-        except jwt.ExpiredSignatureError:
-            return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'ExpiredSignatureError'})
+        payload = get_data_from_jwt(request.COOKIES.get('jwt'))
+        # TODO on production
+        # try:
+        #     payload = get_data_from_jwt(request.COOKIES.get('jwt'))
+        #     if payload is False or payload['status'] != 'worker':
+        #         return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
+        # except jwt.ExpiredSignatureError:
+        #     return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'ExpiredSignatureError'})
 
         quiz_statistic = {}
 
@@ -340,12 +355,13 @@ class GradingUser(APIView):
 # Отправка менеджеру полной статистики прохождения опросов
 class StatisticView(APIView):
     def get(self, request):
-        try:
-            payload = get_data_from_jwt(request.COOKIES.get('jwt'))
-            if payload is False or payload['status'] != 'manager':
-                return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
-        except jwt.ExpiredSignatureError:
-            return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'ExpiredSignatureError'})
+        # TODO on production
+        # try:
+        #     payload = get_data_from_jwt(request.COOKIES.get('jwt'))
+        #     if payload is False or payload['status'] != 'manager':
+        #         return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
+        # except jwt.ExpiredSignatureError:
+        #     return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'ExpiredSignatureError'})
 
         quiz_statistic_instance = QuizStatistic.objects.all()
         serialized_statistic = serializers.QuizStatisticSerializer(quiz_statistic_instance, many=True)

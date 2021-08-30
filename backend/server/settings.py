@@ -12,10 +12,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", 'secret')
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = bool(os.environ.get("DJANGO_DEBUG", True))
-
-ALLOWED_HOSTS = ['quiz-client-vue.herokuapp.com', '127.0.0.1', 'localhost:8080']
-# ALLOW_HOSTS = ['*']
+# DEBUG = bool(os.environ.get("DJANGO_DEBUG", True))
+DEBUG = True
+# TODO on production
+# ALLOWED_HOSTS = ['quiz-client-vue.herokuapp.com']
+ALLOWED_HOSTS = []
 
 # Application definition
 
@@ -140,10 +141,12 @@ CORS_ALLOW_METHODS = [
     "DELETE"
 ]
 
+# TODO on production
+# CORS_ALLOWED_ORIGINS = [
+#     'https://quiz-client-vue.herokuapp.com'
+# ]
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:8080',
     'http://127.0.0.1:8080',
-    'http://192.168.1.68:8080',
-    'https://quiz-client-vue.herokuapp.com'
+    'http://localhost:8080'
 ]
 django_heroku.settings(locals())

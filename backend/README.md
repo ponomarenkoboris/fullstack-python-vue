@@ -1,8 +1,9 @@
 # Проект создания опросов [Backend]
 
 ## Скачивание папки проекта из репозитория 
-```
+```shell
 git clone https://github.com/ponomarenkoboris/fullstack-python-vue.git
+cd backend
 ```
 ## Запуск проекта с помощью Docker:
 ### Создание образа контейнера
