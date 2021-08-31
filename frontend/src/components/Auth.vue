@@ -3,54 +3,72 @@
         <v-btn
             @click="dialog = true"
             :color="actionType === 'login' ? 'green white--text' : 'primary'"
-        >
-            {{ actionType === 'login' ? 'Войти' : 'Зарегистрироваться' }}
-        </v-btn>
+        >{{ actionType === 'login' ? 'Войти' : 'Зарегистрироваться' }}</v-btn>
         <v-dialog v-model="dialog" persistent max-width="600px">
             <v-card>
                 <v-card-title>
-                    <span class="text-h5">{{ actionType === 'login' ? 'Вход в систему' : 'Регистрация' }}</span>
+                    <span
+                        class="text-h5"
+                    >{{ actionType === 'login' ? 'Вход в систему' : 'Регистрация' }}</span>
                 </v-card-title>
                 <v-card-text>
                     <v-form v-model="isValid" ref="form">
                         <v-container>
                             <v-row v-if="actionType === 'registration'">
                                 <v-col cols="12">
-                                    <v-text-field label="Имя*" required v-model="name" :rules="inputFiledRules"></v-text-field>
+                                    <v-text-field
+                                        label="Имя*"
+                                        required
+                                        v-model="name"
+                                        :rules="inputFiledRules"
+                                    ></v-text-field>
                                 </v-col>
                                 <v-col cols="12">
-                                    <v-text-field label="Фамилия*" required v-model="surname" :rules="inputFiledRules"></v-text-field>
+                                    <v-text-field
+                                        label="Фамилия*"
+                                        required
+                                        v-model="surname"
+                                        :rules="inputFiledRules"
+                                    ></v-text-field>
                                 </v-col>
                             </v-row>
                             <v-row>
                                 <v-col cols="12">
-                                    <v-text-field label="Электронная почта*" required v-model="email" :rules="emailInputRules"></v-text-field>
+                                    <v-text-field
+                                        label="Электронная почта*"
+                                        required
+                                        v-model="email"
+                                        :rules="emailInputRules"
+                                    ></v-text-field>
                                 </v-col>
                                 <v-col cols="12">
-                                    <v-text-field label="Пароль*" type="password" required v-model="password" :rules="inputFiledRules"></v-text-field>
+                                    <v-text-field
+                                        label="Пароль*"
+                                        type="password"
+                                        required
+                                        v-model="password"
+                                        :rules="inputFiledRules"
+                                    ></v-text-field>
                                 </v-col>
                             </v-row>
                         </v-container>
                     </v-form>
-                <small>*обязательное поле</small>
+                    <small>*обязательное поле</small>
                 </v-card-text>
                 <v-card-actions>
                     <v-btn color="blue darken-1" id="closeModal" text @click="closeModal">Закрыть</v-btn>
-                    <v-btn color="blue darken-1" text @click="auth">{{ actionType === 'login' ? 'Войти' : 'Зарегистрироваться' }}</v-btn>
+                    <v-btn
+                        color="blue darken-1"
+                        text
+                        @click="auth"
+                    >{{ actionType === 'login' ? 'Войти' : 'Зарегистрироваться' }}</v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
         <v-snackbar v-model="snackbar">
             {{ errorText }}
             <template v-slot:action="{ attrs }">
-                <v-btn
-                    color="pink"
-                    text
-                    v-bind="attrs"
-                    @click="removeAlert"
-                >
-                    Close
-                </v-btn>
+                <v-btn color="pink" text v-bind="attrs" @click="removeAlert">Close</v-btn>
             </template>
         </v-snackbar>
     </v-row>
@@ -123,7 +141,7 @@ export default {
                     this.$router.push(`/${authStatus}`)
                 }
                 this.dialog = false
-            } catch (e)  {
+            } catch (e) {
                 this.raiseAlert('Неудалось выполнить вход в систему. Попробуйте позже.')
             }
         }

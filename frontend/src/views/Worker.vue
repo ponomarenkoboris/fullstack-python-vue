@@ -2,65 +2,59 @@
     <v-container class="m-4">
         <v-container class="d-flex justify-space-between px-10">
             <div class="user__info d-flex">
-                <p><strong>Имя:</strong> {{ name }} &nbsp;</p>
-                <p><strong>Фамилия:</strong> {{ surname }} &nbsp;</p>
-                <p><strong>email:</strong> {{ email }}</p>
+                <p>
+                    <strong>Имя:</strong>
+                    {{ name }} &nbsp;
+                </p>
+                <p>
+                    <strong>Фамилия:</strong>
+                    {{ surname }} &nbsp;
+                </p>
+                <p>
+                    <strong>email:</strong>
+                    {{ email }}
+                </p>
             </div>
-            <v-btn
-                class="red lighten-2"
-                @click="logout"
-            >
+            <v-btn class="red lighten-2" @click="logout">
                 <span class="white--text">Logout</span>
-                <v-icon class="white--text">
-                    {{ logoutIcon }}
-                </v-icon>
+                <v-icon class="white--text">{{ logoutIcon }}</v-icon>
             </v-btn>
         </v-container>
         <v-snackbar v-model="snackbar">
             {{ errorText }}
             <template v-slot:action="{ attrs }">
-                <v-btn
-                    color="pink"
-                    text
-                    v-bind="attrs"
-                    @click="removeAlert"
-                >
-                    Close
-                </v-btn>
+                <v-btn color="pink" text v-bind="attrs" @click="removeAlert">Close</v-btn>
             </template>
         </v-snackbar>
         <v-chip-group class="mb-1">
-            <v-chip label link outlined color="green" @click="() => layoutSwitcher = true">Актуальные опросы</v-chip>
+            <v-chip
+                label
+                link
+                outlined
+                color="green"
+                @click="() => layoutSwitcher = true"
+            >Актуальные опросы</v-chip>
             <v-chip label link outlined @click="() => layoutSwitcher = false">Пройденные опросы</v-chip>
         </v-chip-group>
         <div v-if="layoutSwitcher">
-            <div
-                class="d-flex justify-center"
-                v-if="!requestStatus"
-            >
-                <v-progress-circular
-                    :size="70"
-                    :width="7"
-                    color="primary"
-                    indeterminate
-                ></v-progress-circular>
+            <div class="d-flex justify-center" v-if="!requestStatus">
+                <v-progress-circular :size="70" :width="7" color="primary" indeterminate></v-progress-circular>
             </div>
             <h1 v-if="requestStatus && !quizList.length">Пока нет новых опросов</h1>
             <v-expansion-panels focusable v-else>
-                <v-expansion-panel :class="idx !== quizList.length - 1 && 'mb-2'" v-for="(quiz, idx) in quizList" :key="quiz.id" :disabled="quiz.done">
+                <v-expansion-panel
+                    :class="idx !== quizList.length - 1 && 'mb-2'"
+                    v-for="(quiz, idx) in quizList"
+                    :key="quiz.id"
+                    :disabled="quiz.done"
+                >
                     <v-expansion-panel-header class="d-flex justify-space-between">
-                        <div max-width="300px">
-                            {{ quiz.quiz_name }}
-                        </div>
-                        <div max-width="300px">
-                            {{ quiz.complete }}
-                        </div>
+                        <div max-width="300px">{{ quiz.quiz_name }}</div>
+                        <div max-width="300px">{{ quiz.complete }}</div>
                     </v-expansion-panel-header>
                     <v-expansion-panel-content>
-                        <div class="mb-6">
-                            {{ quiz.description }}
-                        </div>
-                        <ActiveQuiz :quiz="quiz" :index="idx" @updatePollsList="getQuizList"/>
+                        <div class="mb-6">{{ quiz.description }}</div>
+                        <ActiveQuiz :quiz="quiz" :index="idx" @updatePollsList="getQuizList" />
                     </v-expansion-panel-content>
                 </v-expansion-panel>
             </v-expansion-panels>
@@ -78,7 +72,7 @@
 <script>
 
 import axios from 'axios'
-import { SERVER_URL, endpoints } from '../utils'
+import { SERVER_URL, endpoints, getCSRFTokenHeader } from '../utils'
 import ActiveQuiz from '../components/ActiveQuiz.vue'
 import alertMixin from "../mixins/alert";
 import logoutMixin from "../mixins/logoutMixin";
@@ -108,9 +102,10 @@ export default {
     methods: {
         async getQuizList() {
             try {
-                const refresh = await axios.post(SERVER_URL + endpoints.refresh, { email: localStorage.getItem('worker_email') }, { withCredentials: true })
+                const config = { withCredentials: true, headers: getCSRFTokenHeader() }
+                const refresh = await axios.post(SERVER_URL + endpoints.refresh, { email: localStorage.getItem('worker_email') }, config)
                 if (refresh.status !== 200) throw new Error({ message: 'Not authorized' })
-                const response = await axios.get(SERVER_URL + endpoints.quizList, { withCredentials: true })
+                const response = await axios.get(SERVER_URL + endpoints.quizList, config)
                 if (response.status === 200) {
                     const { done_quiz_list: donePolls, quiz_list: quizList } = response.data
                     this.quizList = quizList
@@ -124,13 +119,13 @@ export default {
             }
         },
     },
-    mounted(){
+    mounted() {
         this.getQuizList()
     }
 }
 </script>
 <style scoped>
- .user__info > p {
-     margin: 0
- }
+.user__info > p {
+    margin: 0;
+}
 </style>

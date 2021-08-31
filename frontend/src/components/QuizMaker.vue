@@ -1,9 +1,5 @@
 <template>
-    <v-form
-        ref="form"
-        v-model="validForm"
-        lazy-validation
-    >
+    <v-form ref="form" v-model="validForm" lazy-validation>
         <v-container>
             <v-text-field label="Название опроса" :rules="rules" v-model="quiz.quiz_name"></v-text-field>
             <v-text-field label="Описание опроса" :rules="rules" v-model="quiz.description"></v-text-field>
@@ -16,11 +12,13 @@
                 <div v-for="questionObj in quiz.questions" :key="questionObj.id">
                     <v-divider v-if="questionObj.id !== 1" class="mb-6 mt-6"></v-divider>
                     <div class="d-flex">
-                        <v-text-field v-model="questionObj.question" :rules="questionRules" label="Вопрос:"></v-text-field>
+                        <v-text-field
+                            v-model="questionObj.question"
+                            :rules="questionRules"
+                            label="Вопрос:"
+                        ></v-text-field>
                         <v-hover>
-                            <v-icon
-                                @click="removeQuestion(questionObj.id)"
-                            >{{ trashIcon }}</v-icon>
+                            <v-icon @click="removeQuestion(questionObj.id)">{{ trashIcon }}</v-icon>
                         </v-hover>
                     </div>
 
@@ -39,7 +37,7 @@
                             alt="Фотограффия к вопросу"
                             width="auto"
                             height="200px"
-                        >
+                        />
                     </div>
 
                     <div class="d-flex justify-center mb-3">
@@ -56,8 +54,7 @@
                         <v-btn
                             @click="() => questionObj.variants.push({ id: questionObj.variants.length + 1, variant: '', score: 0 })"
                         >
-                            <v-icon class="mr-3">{{ addVariantIcon }}</v-icon>
-                            Добавить вариант ответа
+                            <v-icon class="mr-3">{{ addVariantIcon }}</v-icon>Добавить вариант ответа
                         </v-btn>
                     </div>
                     <!-- If one answer -->
@@ -66,7 +63,11 @@
                             v-model="questionObj.answer"
                             :rules="[() => !!questionObj.answer.length || 'Необходимо отметить правильный вариант ответа']"
                         >
-                            <v-row v-for="variant in questionObj.variants" :key="variant.id" class="d-flex align-center">
+                            <v-row
+                                v-for="variant in questionObj.variants"
+                                :key="variant.id"
+                                class="d-flex align-center"
+                            >
                                 <div class="mr-6">
                                     <v-radio
                                         v-model="variant.variant"
@@ -74,10 +75,21 @@
                                     ></v-radio>
                                 </div>
                                 <div style="width: 500px; margin-right: 10px;">
-                                    <v-text-field style="width: 500px;" v-model="variant.variant" :rules="questionRules" label="Вариант ответа"></v-text-field>
+                                    <v-text-field
+                                        style="width: 500px;"
+                                        v-model="variant.variant"
+                                        :rules="questionRules"
+                                        label="Вариант ответа"
+                                    ></v-text-field>
                                 </div>
                                 <div style="width: 500px;">
-                                    <v-text-field type="number" v-model.number="variant.score" :rules="inputNumberRules" outlined label="Балл за выбранный вариант"></v-text-field>
+                                    <v-text-field
+                                        type="number"
+                                        v-model.number="variant.score"
+                                        :rules="inputNumberRules"
+                                        outlined
+                                        label="Балл за выбранный вариант"
+                                    ></v-text-field>
                                 </div>
                                 <v-hover>
                                     <v-icon
@@ -92,7 +104,8 @@
                     <!-- TODO stile for checkbox validation -->
                     <v-container v-else>
                         <v-row
-                            v-for="variant in questionObj.variants" :key="variant.id"
+                            v-for="variant in questionObj.variants"
+                            :key="variant.id"
                             class="d-flex justify-center align-center mt-3"
                         >
                             <v-checkbox
@@ -102,10 +115,21 @@
                                 :rules="[() => !!questionObj.answer.length || 'Необходимо отметить правильный вариант ответа']"
                             ></v-checkbox>
                             <div style="width: 500px; margin-right: 10px;">
-                                <v-text-field style="width: 500px;" v-model="variant.variant" :rules="questionRules" label="Вариант ответа"></v-text-field>
+                                <v-text-field
+                                    style="width: 500px;"
+                                    v-model="variant.variant"
+                                    :rules="questionRules"
+                                    label="Вариант ответа"
+                                ></v-text-field>
                             </div>
                             <div style="width: 500px;">
-                                <v-text-field type="number" v-model.number="variant.score" :rules="inputNumberRules" outlined label="Балл за выбранный вариант"></v-text-field>
+                                <v-text-field
+                                    type="number"
+                                    v-model.number="variant.score"
+                                    :rules="inputNumberRules"
+                                    outlined
+                                    label="Балл за выбранный вариант"
+                                ></v-text-field>
                             </div>
                             <v-hover>
                                 <v-icon
@@ -116,23 +140,15 @@
                     </v-container>
                 </div>
                 <v-row justify="space-between" align="center" class="mt-3">
-                    <v-btn @click="appendQuestion()"><v-icon class="mr-3">{{ addQuestionIcon  }}</v-icon>Добавить вопрос</v-btn>
+                    <v-btn @click="appendQuestion()">
+                        <v-icon class="mr-3">{{ addQuestionIcon }}</v-icon>Добавить вопрос
+                    </v-btn>
 
                     <!-- START Dialog for adding created question -->
-                    <v-dialog
-                        v-model="dialog"
-                        scrollable
-                        max-width="300px"
-                    >
+                    <v-dialog v-model="dialog" scrollable max-width="300px">
                         <template v-slot:activator="{ on, attrs }">
-                            <v-btn
-                                color="primary"
-                                dark
-                                v-bind="attrs"
-                                v-on="on"
-                            >
-                                <v-icon class="mr-3">{{ addQuestionFromGroupIcon }}</v-icon>
-                                Добавить вопрос из группы
+                            <v-btn color="primary" dark v-bind="attrs" v-on="on">
+                                <v-icon class="mr-3">{{ addQuestionFromGroupIcon }}</v-icon>Добавить вопрос из группы
                             </v-btn>
                         </template>
                         <v-card>
@@ -147,10 +163,7 @@
                                     indeterminate
                                     class="mt-3"
                                 ></v-progress-circular>
-                                <v-radio-group
-                                    v-model="selectedQuestion"
-                                    column
-                                >
+                                <v-radio-group v-model="selectedQuestion" column>
                                     <v-container v-for="group in questionGroups" :key="group.id">
                                         <h4>{{ group.group_name }}</h4>
                                         <v-radio
@@ -164,20 +177,12 @@
                             </v-card-text>
                             <v-divider></v-divider>
                             <v-card-actions>
-                                <v-btn
-                                    color="blue darken-1"
-                                    text
-                                    @click="dialog = false"
-                                >
-                                    Закрыть
-                                </v-btn>
+                                <v-btn color="blue darken-1" text @click="dialog = false">Закрыть</v-btn>
                                 <v-btn
                                     color="blue darken-1"
                                     text
                                     @click="appendQuestion(true)"
-                                >
-                                    Добавить
-                                </v-btn>
+                                >Добавить</v-btn>
                             </v-card-actions>
                         </v-card>
                     </v-dialog>
@@ -193,19 +198,17 @@
                     width="520"
                 >
                     <strong>Выбирете день, когда опрос будет доступен для прохождения</strong>
-                    <v-date-picker
-                        class="mt-2"
-                        locale="ru-RU"
-                        v-model="publishDate"
-                        full-width
-                    />
+                    <v-date-picker class="mt-2" locale="ru-RU" v-model="publishDate" full-width />
                 </v-sheet>
             </v-container>
             <!-- end calendar -->
             <v-container class="d-flex justify-center">
-                <v-btn @click="publishQuiz" :disabled="!quiz.questions.length" color="light-green accent-2">
-                    <v-icon class="mr-2">{{ publishQuizIcon }}</v-icon>
-                    Опубликовать опрос
+                <v-btn
+                    @click="publishQuiz"
+                    :disabled="!quiz.questions.length"
+                    color="light-green accent-2"
+                >
+                    <v-icon class="mr-2">{{ publishQuizIcon }}</v-icon>Опубликовать опрос
                 </v-btn>
             </v-container>
         </v-container>
@@ -221,7 +224,7 @@ import {
     mdiConnection
 } from '@mdi/js';
 import axios from 'axios'
-import { SERVER_URL, endpoints } from "../utils";
+import { SERVER_URL, endpoints, getCSRFTokenHeader } from "../utils";
 import alertMixin from "../mixins/alert";
 export default {
     name: 'QuizMaker',
@@ -278,11 +281,11 @@ export default {
     methods: {
         appendQuestion(fetchedQuestion = false) {
             if (fetchedQuestion) {
-                console.log(this.quiz.questions.length)
                 let question = {}
                 this.questionGroups.forEach(group => {
                     const specificQuestion = group.questions.find(question => question.id === +this.selectedQuestion)
-                    if (specificQuestion) question = { ...specificQuestion, id: this.quiz.questions.length }
+                    console.log(specificQuestion)
+                    if (specificQuestion) question = { ...specificQuestion, id: this.quiz.questions.length, question_group: null }
                 })
                 if (question.multiple) {
                     question.answer = question.answer.split(',').map(answer => {
@@ -303,9 +306,10 @@ export default {
         },
         async fetchQuestionGroups() {
             try {
-                const refresh = await axios.post(SERVER_URL + endpoints.refresh, { email: localStorage.getItem('manager_email') }, { withCredentials: true })
+                const config = { withCredentials: true, headers: getCSRFTokenHeader() }
+                const refresh = await axios.post(SERVER_URL + endpoints.refresh, { email: localStorage.getItem('manager_email') }, config)
                 if (refresh.status !== 200) throw new Error({ message: 'Not authorized' })
-                const response = await axios.get(SERVER_URL + endpoints.questionsGroup, { withCredentials: true })
+                const response = await axios.get(SERVER_URL + endpoints.questionsGroup, config)
                 this.questionGroups = response.data
             } catch (e) {
                 this.raiseAlert('Неудалось соединиться с сервером.')
@@ -345,11 +349,12 @@ export default {
             })
             notReactiveQuiz['publish_date'] = Math.floor(new Date(new Date(this.publishDate).getTime() - 10800000) / 1000)
             try {
-                const refresh = await axios.post(SERVER_URL + endpoints.refresh, { email: localStorage.getItem('manager_email') }, { withCredentials: true })
+                const config = { withCredentials: true, headers: getCSRFTokenHeader() }
+                const refresh = await axios.post(SERVER_URL + endpoints.refresh, { email: localStorage.getItem('manager_email') }, config)
                 if (refresh.status !== 200) throw new Error({ message: 'Not authorized' })
                 const response = await axios.post(SERVER_URL + endpoints.quizList, {
                     ...notReactiveQuiz
-                }, { withCredentials: true })
+                }, config)
                 if (response.status === 200) {
                     this.quiz = {
                         quiz_name: '',

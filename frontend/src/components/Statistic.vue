@@ -16,14 +16,12 @@
             :value="fullStatisticController"
         >
             <v-card>
-                <v-toolbar
-                    color="light-green lighten-2 black--text"
-                    height="100px"
-                    dark
-                >
+                <v-toolbar color="light-green lighten-2 black--text" height="100px" dark>
                     <v-container>
                         <p style="margin: 0">Опрос: {{ fullStatisticData.quiz_name }}</p>
-                        <p style="margin: 0">Пользователь: {{ fullStatisticData.user_name }} {{ fullStatisticData.user_surname }}</p>
+                        <p
+                            style="margin: 0"
+                        >Пользователь: {{ fullStatisticData.user_name }} {{ fullStatisticData.user_surname }}</p>
                         <p style="margin: 0">Email: {{ fullStatisticData.user_email }}</p>
                     </v-container>
                 </v-toolbar>
@@ -47,10 +45,7 @@
                     </v-sheet>
                 </v-card-text>
                 <v-card-actions class="justify-end">
-                    <v-btn
-                        @click="closeDialog"
-                        text
-                    >Закрыть</v-btn>
+                    <v-btn @click="closeDialog" text>Закрыть</v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
@@ -58,14 +53,7 @@
         <v-snackbar v-model="snackbar">
             {{ errorText }}
             <template v-slot:action="{ attrs }">
-                <v-btn
-                    color="pink"
-                    text
-                    v-bind="attrs"
-                    @click="removeAlert"
-                >
-                    Close
-                </v-btn>
+                <v-btn color="pink" text v-bind="attrs" @click="removeAlert">Close</v-btn>
             </template>
         </v-snackbar>
     </v-container>
@@ -73,7 +61,7 @@
 <script>
 import alertMixin from "../mixins/alert";
 import axios from 'axios'
-import { SERVER_URL, endpoints } from "../utils";
+import { SERVER_URL, endpoints, getCSRFTokenHeader } from "../utils";
 
 export default {
     name: 'Statistic',
@@ -101,17 +89,17 @@ export default {
     methods: {
         async getStatistic() {
             try {
-                const refresh = await axios.post(SERVER_URL + endpoints.refresh, { email: localStorage.getItem('manager_email') }, { withCredentials: true })
+                const config = { withCredentials: true, headers: getCSRFTokenHeader() }
+                const refresh = await axios.post(SERVER_URL + endpoints.refresh, { email: localStorage.getItem('manager_email') }, config)
                 if (refresh.status !== 200) throw new Error({ message: 'Not authorized' })
-                const response = await axios.get(SERVER_URL + endpoints.quizFullStatistic, { withCredentials: true })
+                const response = await axios.get(SERVER_URL + endpoints.quizFullStatistic, config)
                 if (response.status === 200) {
                     const validStatistic = response.data.map(quizStatistic => {
                         const { completion_date } = quizStatistic
                         const date = new Date(completion_date * 1000 + 10800000)
                         return {
                             ...quizStatistic,
-                            completion_date: `${
-                                date.getDate() + '.' + (date.getMonth() + 1 < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1) + '.' + date.getFullYear()},
+                            completion_date: `${date.getDate() + '.' + (date.getMonth() + 1 < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1) + '.' + date.getFullYear()},
                                 ${date.getHours() + ':' + (date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes())}`
                         }
                     })
@@ -128,7 +116,7 @@ export default {
             this.fullStatisticData = event
             this.fullStatisticController = true
         },
-        closeDialog(){
+        closeDialog() {
             this.fullStatisticData = {}
             this.fullStatisticController = false
         }

@@ -3,26 +3,36 @@ from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework import status
 from .models import Quiz, User, Question, QuestionGroup, UserAnswers, QuizStatistic
-from . import serializers
-import json, jwt, time
+from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
+from django.utils.decorators import method_decorator
 from .jwt_methods import get_data_from_jwt, set_jwt
-# TODO добавить samesite атрибут для всех set_cookies
+from . import serializers
+import json, time, jwt
+
+@method_decorator(csrf_protect, name='dispatch')
 class QuizView(APIView):
     """
-    Взаимодействие с опросами
+    API для взаимодействия с опросами
     """
     def post(self, request):
         """
         Создание опроса
-        request: содержит JSON объект опроса
+        
+        expect:
+            request COOKIE: csrf token and jwt token
+            request data: dict({ models.Quiz })
+
+        return:
+            response COOKIE: csrf token and jwt token
+            data: dict({ status: int, message: str })
         """
         token = request.COOKIES.get('jwt')
-        # try:
-        #     payload = get_data_from_jwt(token)
-        #     if payload is False or payload['status'] != 'manager':
-        #         return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
-        # except jwt.ExpiredSignatureError:
-        #     return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'ExpiredSignatureError'})
+        try:
+            payload = get_data_from_jwt(token)
+            if payload is False or payload['status'] != 'manager':
+                return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
+        except jwt.ExpiredSignatureError:
+            return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'ExpiredSignatureError'})
 
         serialized_quiz = serializers.QuizSerializer(data=request.data)
         if serialized_quiz.is_valid():
@@ -39,18 +49,20 @@ class QuizView(APIView):
     def get(self, request):
         """
         Получение списка всех опросов
-        :return: Объект из двух списокв:
-                quiz_list - список не пройденных опросов,
-                done_quiz_list - список пройденных вопросов
+
+        expect:
+            request COOKIE: csrf token and jwt token
+
+        return:
+            data: dict({ models.Quiz })
         """
-        # TODO on production
-        payload = get_data_from_jwt(request.COOKIES.get('jwt'))
-        # try:
-        #     payload = get_data_from_jwt(request.COOKIES.get('jwt'))
-        #     if payload is False or payload['status'] != 'worker':
-        #         return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
-        # except jwt.ExpiredSignatureError:
-        #     return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'ExpiredSignatureError'})
+
+        try:
+            payload = get_data_from_jwt(request.COOKIES.get('jwt'))
+            if payload is False or payload['status'] != 'worker':
+                return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
+        except jwt.ExpiredSignatureError:
+            return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'ExpiredSignatureError'})
 
         user_answers = UserAnswers.objects.filter(user_id=payload['id'])
         serialized_answers = serializers.UserAnswersSerializer(user_answers, many=True)
@@ -80,25 +92,49 @@ class QuizView(APIView):
             "done_quiz_list": user_answers
         })
 
+@method_decorator(csrf_protect, name='get')
 class QuestionListView(APIView):
-
+    """
+    API для получения списка вопросов
+    """
     def get(self, request):
-        # TODO on production
-        # try:
-        #     payload = get_data_from_jwt(request.COOKIES.get('jwt'))
-        #     if payload is False or payload['status'] != 'manager':
-        #         return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
-        # except jwt.ExpiredSignatureError:
-        #     return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'ExpiredSignatureError'})
+        """
+        Получение списка вопросов
+
+        expect:
+            request COOKIE: csrf token and jwt token
+
+        return:
+            response COOKIE: csrf token and jwt token
+            data: dict({ models.User })
+        """
+        try:
+            payload = get_data_from_jwt(request.COOKIES.get('jwt'))
+            if payload is False or payload['status'] != 'manager':
+                return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
+        except jwt.ExpiredSignatureError:
+            return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'ExpiredSignatureError'})
 
         questions_list = Question.objects.all()
         serialized_questions = serializers.QuestionSerializer(questions_list, many=True)
         return Response(status=status.HTTP_200_OK, data=serialized_questions.data)
 
+@method_decorator(ensure_csrf_cookie, name='post')
 class RegisterView(APIView):
+    """
+    API для рагистрации пользователя
+    """
     def post(self, request):
         """
         Регистрайия пользователя
+
+        expect:
+            request COOKIE: csrf token and jwt token
+            request data: dict({ email: str })
+
+        return:
+            response COOKIE: csrf token and jwt token
+            data: dict({ models.User })
         """
         new_user = serializers.UserSerializer(data=request.data)
         new_user.is_valid(raise_exception=True)
@@ -107,17 +143,27 @@ class RegisterView(APIView):
         token = set_jwt(new_user.data['id'], request.data['auth_status'])
 
         response = Response()
-        # TODO on production response.set_cookie(key='jwt', value=token, httponly=True, samesite='None', secure=True, path='/')
-        response.set_cookie(key='jwt', value=token)
+        response.set_cookie(key='jwt', value=token, httponly=True, samesite='None', secure=True, path='/')
         response.data = new_user.data
 
         return response
 
+@method_decorator(csrf_protect, name='post')
 class RefreshView(APIView):
     """
-    Обновление JWT токена
+    API для обновление JWT токена
     """
     def post(self, request):
+        """
+        Обновление JWT токена
+
+        expect:
+            request COOKIE: csrf token and jwt token
+            request data: dict({ email: str })
+
+        return:
+            response COOKIE: csrf token and jwt token
+        """
         token = request.COOKIES.get('jwt')
 
         if not token:
@@ -136,15 +182,29 @@ class RefreshView(APIView):
             token = set_jwt(serialized_user.data.pop('id'), serialized_user.data.pop('auth_status'))
 
             response = Response()
-            # TODO on production response.set_cookie(key='jwt', value=token, httponly=True, samesite='None', secure=True, path='/')
-            response.set_cookie(key='jwt', value=token)
+            response.set_cookie(key='jwt', value=token, httponly=True, samesite='None', secure=True, path='/')
             response.status_code = 200
             return response
 
         return Response(status=status.HTTP_200_OK)
 
+@method_decorator(ensure_csrf_cookie, name='post')
 class LoginView(APIView):
+    """
+    API для входа пользователя в систему
+
+    """
     def post(self, request):
+        """
+        Вхдо в систему
+
+        expect: 
+            request data: dict({ email: str, password: str, auth_status: str })
+    
+        return: 
+            COOKIE: csrf token and jwt token
+            data: dict({ name: str, email: str, surname: str })
+        """
         email = request.data['email']
         password = request.data['password']
         auth_status = request.data['auth_status']
@@ -163,8 +223,7 @@ class LoginView(APIView):
         token = set_jwt(user.id, user.auth_status)
 
         response = Response()
-        # TODO on production response.set_cookie(key='jwt', value=token, httponly=True, samesite='None', secure=True, path='/')
-        response.set_cookie(key='jwt', value=token)
+        response.set_cookie(key='jwt', value=token, httponly=True, samesite='None', secure=True, path='/')        
         response.data = {
             "name": user.name,
             "surname": user.surname,
@@ -172,11 +231,24 @@ class LoginView(APIView):
         }
         return response
 
+@method_decorator(csrf_protect, name='post')
 class LogoutView(APIView):
+    """
+    API для выхода пользователя из системы
 
+    """
     def post(self, request):
+        """
+        Выход из системы
+
+        expect:
+            request COOKIE: csrf token and jwt token
+
+        return:
+            dict({ message: str })
+        """
         response = Response()
-        # TODO on production response.delete_cookie(key='jwt', samesite='None', path='/')
+        response.delete_cookie(key='jwt', samesite='None', path='/')
         response.delete_cookie(key='jwt')
         response.status = status.HTTP_200_OK
 
@@ -185,22 +257,28 @@ class LogoutView(APIView):
         }
         return response
 
-# Question Group
+@method_decorator(csrf_protect, name='dispatch')
 class QuestionGroupView(APIView):
     """
-    API групп вопросов
+    API для управления группами вопросов
     """
     def get(self, request):
         """
         Поучение списка групп вопросов
+
+        expect:
+            request COOKIE: csrf token and jwt token
+
+        return: 
+            data: list(models.QuestionGroup)
         """
-        # TODO on production
-        # try:
-        #     payload = get_data_from_jwt(request.COOKIES.get('jwt'))
-        #     if payload is False or payload['status'] != 'manager':
-        #         return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
-        # except jwt.ExpiredSignatureError:
-        #     return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'ExpiredSignatureError'})
+        
+        try:
+            payload = get_data_from_jwt(request.COOKIES.get('jwt'))
+            if payload is False or payload['status'] != 'manager':
+                return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
+        except jwt.ExpiredSignatureError:
+            return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'ExpiredSignatureError'})
 
         groups = QuestionGroup.objects.all()
         serialized_groups = serializers.QuestionGroupSerializer(groups, many=True)
@@ -209,14 +287,20 @@ class QuestionGroupView(APIView):
     def post(self, request):
         """
         Создание новой группы вопросов
+
+        expect:
+            request COOKIE: csrf token and jwt token
+            request data: dict({ group_name: str, questions: list(empty) })
+        return:
+            data: list(models.QuestionGroup)
         """
-        # TODO on production
-        # try:
-        #     payload = get_data_from_jwt(request.COOKIES.get('jwt'))
-        #     if payload is False or payload['status'] != 'manager':
-        #         return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
-        # except jwt.ExpiredSignatureError:
-        #     return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'ExpiredSignatureError'})
+        
+        try:
+            payload = get_data_from_jwt(request.COOKIES.get('jwt'))
+            if payload is False or payload['status'] != 'manager':
+                return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
+        except jwt.ExpiredSignatureError:
+            return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'ExpiredSignatureError'})
 
         new_group = serializers.QuestionGroupSerializer(data=request.data)
         new_group.is_valid(raise_exception=True)
@@ -226,14 +310,20 @@ class QuestionGroupView(APIView):
     def put(self, request):
         """
         Добавление вопросов в группу
+
+        expect:
+            request COOKIE: csrf token and jwt token
+            request data: dict({ group_name: str, questions: list(models.Question) })
+        return:
+            data: list(models.QuestionGroup)
         """
-        # TODO on production
-        # try:
-        #     payload = get_data_from_jwt(request.COOKIES.get('jwt'))
-        #     if payload is False or payload['status'] != 'manager':
-        #         return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
-        # except jwt.ExpiredSignatureError:
-        #     return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'ExpiredSignatureError'})
+        
+        try:
+            payload = get_data_from_jwt(request.COOKIES.get('jwt'))
+            if payload is False or payload['status'] != 'manager':
+                return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
+        except jwt.ExpiredSignatureError:
+            return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'ExpiredSignatureError'})
 
         group_name = request.data['group_name']
         group = QuestionGroup.objects.all().filter(group_name=group_name).first()
@@ -246,34 +336,54 @@ class QuestionGroupView(APIView):
     def delete(self, request):
         """
         Удаление группы вопросов
+
+        expect:
+            request COOKIE: csrf token and jwt token
+            request data: dict({ group_id: int })
+
+        return: 
+            data: list(models.QuestionGroup)
         """
-        # TODO on production
-        # try:
-        #     payload = get_data_from_jwt(request.COOKIES.get('jwt'))
-        #     if payload is False or payload['status'] != 'manager':
-        #         return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
-        # except jwt.ExpiredSignatureError:
-        #     return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'ExpiredSignatureError'})
+        
+        try:
+            payload = get_data_from_jwt(request.COOKIES.get('jwt'))
+            if payload is False or payload['status'] != 'manager':
+                return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
+        except jwt.ExpiredSignatureError:
+            return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'ExpiredSignatureError'})
 
         QuestionGroup.objects.filter(id=request.data.pop('group_id')).delete()
         groups = QuestionGroup.objects.all()
         serialized_group = serializers.QuestionGroupSerializer(groups, many=True)
         return Response(data=serialized_group.data)
 
-# Оценка прохождения опроса и формирование статистики
+@method_decorator(csrf_protect, name='post')
 class GradingUser(APIView):
+    """
+    API для оценки ответа пользователя
+    """
     def post(self, request):
+        """
+        Оценка пользователя
+
+        expect:
+            request COOKIE: csrf token and jwt token
+            request data: dict({ quizId: int, answers: list({ questionId: int, answer: str }) })
+
+        return:
+            data: dict({ message: str: success: boolean })
+        """
         quiz_id = request.data['quizId']
         answers = request.data['answers']
 
         payload = get_data_from_jwt(request.COOKIES.get('jwt'))
-        # TODO on production
-        # try:
-        #     payload = get_data_from_jwt(request.COOKIES.get('jwt'))
-        #     if payload is False or payload['status'] != 'worker':
-        #         return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
-        # except jwt.ExpiredSignatureError:
-        #     return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'ExpiredSignatureError'})
+        
+        try:
+            payload = get_data_from_jwt(request.COOKIES.get('jwt'))
+            if payload is False or payload['status'] != 'worker':
+                return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
+        except jwt.ExpiredSignatureError:
+            return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'ExpiredSignatureError'})
 
         quiz_statistic = {}
 
@@ -352,16 +462,25 @@ class GradingUser(APIView):
         })
 
 
-# Отправка менеджеру полной статистики прохождения опросов
+@method_decorator(csrf_protect, name='get')
 class StatisticView(APIView):
+    """
+    API для просмотра статистики прохождения опросов (для менеджера)
+    """
     def get(self, request):
-        # TODO on production
-        # try:
-        #     payload = get_data_from_jwt(request.COOKIES.get('jwt'))
-        #     if payload is False or payload['status'] != 'manager':
-        #         return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
-        # except jwt.ExpiredSignatureError:
-        #     return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'ExpiredSignatureError'})
+        """
+        expext:
+            request COOKIE: csrf token and jwt token
+
+        return: 
+            data: list(QuestionStatistic)
+        """
+        try:
+            payload = get_data_from_jwt(request.COOKIES.get('jwt'))
+            if payload is False or payload['status'] != 'manager':
+                return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'Incorrect authorization'})
+        except jwt.ExpiredSignatureError:
+            return Response(status=status.HTTP_401_UNAUTHORIZED, data={'message': 'ExpiredSignatureError'})
 
         quiz_statistic_instance = QuizStatistic.objects.all()
         serialized_statistic = serializers.QuizStatisticSerializer(quiz_statistic_instance, many=True)

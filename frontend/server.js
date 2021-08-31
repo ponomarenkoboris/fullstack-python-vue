@@ -10,9 +10,9 @@ app.use(history({
 }))
 app.use(serveStatic(path.join(__dirname, 'dist')));
 
-const PORT = process.env.PORT || 80;
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
-    console.log('Server started on port', PORT)
+    console.log('Server started: ', 'http://127.0.0.1:' + PORT)
 });
 
 
