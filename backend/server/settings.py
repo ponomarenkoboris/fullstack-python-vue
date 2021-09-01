@@ -14,7 +14,7 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", 'secret')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.environ.get("DJANGO_DEBUG", True))
 
-# ALLOWED_HOSTS = ['quiz-client-vue.herokuapp.com'] # On production
+# ALLOWED_HOSTS = ['quiz-client-app.herokuapp.com'] # On production
 ALLOWED_HOSTS = [] # On development
 
 # Application definition
@@ -119,19 +119,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'quizapi.User'
 
-# CSRF
-CSRF_COOKIE_SAMESITE = "None"
-CSRF_COOKIE_HTTPONLY = False
-# CSRF_COOKIE_SECURE = True
-# CSRF_TRUSTED_ORIGINS = [
-#     'https://quiz-client-vue.herokuapp.com'
-# ]
-# CSRF_COOKIE_DOMAIN = 'quiz-client-vue.herokuapp.com'
-
-# SESSION
-SESSION_COOKIE_SAMESITE = "None"
-SESSION_COOKIE_HTTPONLY = True
-
 # CORS
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = [
@@ -146,9 +133,9 @@ CORS_ALLOW_METHODS = [
     "DELETE"
 ]
 
-# CORS_ALLOWED_ORIGINS = [ # On production
-#     'https://quiz-client-vue.herokuapp.com'
-# ]
+CORS_ALLOWED_ORIGINS = [ # On production
+    'https://quiz-client-app.herokuapp.com'
+]
 
 CORS_ALLOWED_ORIGINS = [ # On development
     'http://127.0.0.1:8080',

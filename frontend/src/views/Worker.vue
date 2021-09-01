@@ -72,7 +72,7 @@
 <script>
 
 import axios from 'axios'
-import { SERVER_URL, endpoints, getCSRFTokenHeader } from '../utils'
+import { SERVER_URL, endpoints } from '../utils'
 import ActiveQuiz from '../components/ActiveQuiz.vue'
 import alertMixin from "../mixins/alert";
 import logoutMixin from "../mixins/logoutMixin";
@@ -102,10 +102,7 @@ export default {
     methods: {
         async getQuizList() {
             try {
-                const config = { withCredentials: true, headers: getCSRFTokenHeader() }
-                const refresh = await axios.post(SERVER_URL + endpoints.refresh, { email: localStorage.getItem('worker_email') }, config)
-                if (refresh.status !== 200) throw new Error({ message: 'Not authorized' })
-                const response = await axios.get(SERVER_URL + endpoints.quizList, config)
+                const response = await axios.get(SERVER_URL + endpoints.quizList, { withCredentials: true })
                 if (response.status === 200) {
                     const { done_quiz_list: donePolls, quiz_list: quizList } = response.data
                     this.quizList = quizList

@@ -61,7 +61,7 @@
 <script>
 import alertMixin from "../mixins/alert";
 import axios from 'axios'
-import { SERVER_URL, endpoints, getCSRFTokenHeader } from "../utils";
+import { SERVER_URL, endpoints } from "../utils";
 
 export default {
     name: 'Statistic',
@@ -89,10 +89,9 @@ export default {
     methods: {
         async getStatistic() {
             try {
-                const config = { withCredentials: true, headers: getCSRFTokenHeader() }
-                const refresh = await axios.post(SERVER_URL + endpoints.refresh, { email: localStorage.getItem('manager_email') }, config)
+                const refresh = await axios.post(SERVER_URL + endpoints.refresh, { email: localStorage.getItem('manager_email') }, { withCredentials: true })
                 if (refresh.status !== 200) throw new Error({ message: 'Not authorized' })
-                const response = await axios.get(SERVER_URL + endpoints.quizFullStatistic, config)
+                const response = await axios.get(SERVER_URL + endpoints.quizFullStatistic, { withCredentials: true })
                 if (response.status === 200) {
                     const validStatistic = response.data.map(quizStatistic => {
                         const { completion_date } = quizStatistic

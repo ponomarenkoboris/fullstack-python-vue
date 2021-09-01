@@ -2,7 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Main from '../views/Main.vue'
 import axios from 'axios'
-import { SERVER_URL, endpoints, getCSRFTokenHeader } from "@/utils"
+import { SERVER_URL, endpoints } from "@/utils"
 Vue.use(VueRouter)
 
 const routes = [
@@ -48,16 +48,15 @@ const router = new VueRouter({
 
 router.beforeEach((to, _, next) => {
 	if (to.path !== '/') {
-		const email = localStorage.getItem('worker_email') || localStorage.getItem('user_email')
-		const config = { withCredentials: true, headers: getCSRFTokenHeader() }
-		axios.post(SERVER_URL + endpoints.refresh, { email }, config)
-			.then(response => {
-				if (response.status === 200) next()
-				else next('/')
-			})
-			.catch(() => {
-				next('/')
-			})
+		const email = localStorage.getItem('manager_email') || localStorage.getItem('worker_email')
+		if (!email) next('/')
+		const refresh = axios.post(SERVER_URL + endpoints.refresh, { email }, { withCredentials: true })
+		refresh.then(response => {
+			if (response.status === 200) next()
+			else next('/')
+		}).catch(() => {
+			next('/')
+		})
 	} else {
 		next()
 	}

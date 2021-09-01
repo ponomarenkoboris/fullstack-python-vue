@@ -3,13 +3,10 @@ from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework import status
 from .models import Quiz, User, Question, QuestionGroup, UserAnswers, QuizStatistic
-from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
-from django.utils.decorators import method_decorator
 from .jwt_methods import get_data_from_jwt, set_jwt
 from . import serializers
 import json, time, jwt
 
-@method_decorator(csrf_protect, name='dispatch')
 class QuizView(APIView):
     """
     API для взаимодействия с опросами
@@ -92,7 +89,6 @@ class QuizView(APIView):
             "done_quiz_list": user_answers
         })
 
-@method_decorator(csrf_protect, name='get')
 class QuestionListView(APIView):
     """
     API для получения списка вопросов
@@ -119,7 +115,6 @@ class QuestionListView(APIView):
         serialized_questions = serializers.QuestionSerializer(questions_list, many=True)
         return Response(status=status.HTTP_200_OK, data=serialized_questions.data)
 
-@method_decorator(ensure_csrf_cookie, name='post')
 class RegisterView(APIView):
     """
     API для рагистрации пользователя
@@ -148,7 +143,6 @@ class RegisterView(APIView):
 
         return response
 
-@method_decorator(csrf_protect, name='post')
 class RefreshView(APIView):
     """
     API для обновление JWT токена
@@ -158,11 +152,11 @@ class RefreshView(APIView):
         Обновление JWT токена
 
         expect:
-            request COOKIE: csrf token and jwt token
+            request COOKIE: jwt token
             request data: dict({ email: str })
 
         return:
-            response COOKIE: csrf token and jwt token
+            response COOKIE: jwt token
         """
         token = request.COOKIES.get('jwt')
 
@@ -188,7 +182,6 @@ class RefreshView(APIView):
 
         return Response(status=status.HTTP_200_OK)
 
-@method_decorator(ensure_csrf_cookie, name='post')
 class LoginView(APIView):
     """
     API для входа пользователя в систему
@@ -231,7 +224,6 @@ class LoginView(APIView):
         }
         return response
 
-@method_decorator(csrf_protect, name='post')
 class LogoutView(APIView):
     """
     API для выхода пользователя из системы
@@ -257,7 +249,6 @@ class LogoutView(APIView):
         }
         return response
 
-@method_decorator(csrf_protect, name='dispatch')
 class QuestionGroupView(APIView):
     """
     API для управления группами вопросов
@@ -357,7 +348,6 @@ class QuestionGroupView(APIView):
         serialized_group = serializers.QuestionGroupSerializer(groups, many=True)
         return Response(data=serialized_group.data)
 
-@method_decorator(csrf_protect, name='post')
 class GradingUser(APIView):
     """
     API для оценки ответа пользователя
@@ -462,7 +452,6 @@ class GradingUser(APIView):
         })
 
 
-@method_decorator(csrf_protect, name='get')
 class StatisticView(APIView):
     """
     API для просмотра статистики прохождения опросов (для менеджера)

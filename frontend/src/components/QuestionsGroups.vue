@@ -202,7 +202,7 @@
 import { mdiPlus } from '@mdi/js';
 import { mdiDelete } from '@mdi/js';
 import axios from 'axios'
-import { SERVER_URL, endpoints, getCSRFTokenHeader } from "../utils";
+import { SERVER_URL, endpoints } from "../utils";
 import alertMixin from "../mixins/alert";
 // TODO add styles and validation
 
@@ -250,11 +250,10 @@ export default {
         async removeGroup(e, groupId) {
             e.stopPropagation()
             try {
-                const config = { withCredentials: true, headers: getCSRFTokenHeader() }
-                const refresh = await axios.post(SERVER_URL + endpoints.refresh, { email: localStorage.getItem('manager_email') }, config)
+                const refresh = await axios.post(SERVER_URL + endpoints.refresh, { email: localStorage.getItem('manager_email') }, { withCredentials: true })
                 if (refresh.status !== 200) throw new Error({ message: 'Not authorized' })
                 const response = await axios.delete(SERVER_URL + endpoints.questionsGroup, {
-                    ...config,
+                    withCredentials: true,
                     data: {
                         group_id: groupId
                     }
@@ -269,11 +268,10 @@ export default {
         },
         async createNewGroup() {
             try {
-                const config = { withCredentials: true, headers: getCSRFTokenHeader() }
-                const refresh = await axios.post(SERVER_URL + endpoints.refresh, { email: localStorage.getItem('manager_email') }, config)
+                const refresh = await axios.post(SERVER_URL + endpoints.refresh, { email: localStorage.getItem('manager_email') }, { withCredentials: true })
                 if (refresh.status !== 200) throw new Error({ message: 'Not authorized' })
                 const newGroup = { group_name: this.enteredGroupName, questions: [] }
-                const response = await axios.post(SERVER_URL + endpoints.questionsGroup, newGroup, config)
+                const response = await axios.post(SERVER_URL + endpoints.questionsGroup, newGroup, { withCredentials: true })
                 const createdGroup = await response.data
                 this.groups.push(createdGroup)
                 this.enteredGroupName = ''
@@ -311,10 +309,9 @@ export default {
             }
 
             try {
-                const config = { withCredentials: true, headers: getCSRFTokenHeader() }
-                const refresh = await axios.post(SERVER_URL + endpoints.refresh, { email: localStorage.getItem('manager_email') }, config)
+                const refresh = await axios.post(SERVER_URL + endpoints.refresh, { email: localStorage.getItem('manager_email') }, { withCredentials: true })
                 if (refresh.status !== 200) throw new Error({ message: 'Not authorized' })
-                const response = await axios.put(SERVER_URL + endpoints.questionsGroup, questionData, config)
+                const response = await axios.put(SERVER_URL + endpoints.questionsGroup, questionData, { withCredentials: true })
                 const updatedGroup = await response.data
                 this.groups.splice(this.groupIndex, 1, updatedGroup)
             } catch (e) {
@@ -325,10 +322,9 @@ export default {
         },
         async getQuestionGroups() {
             try {
-                const config = { withCredentials: true, headers: getCSRFTokenHeader() }
-                const refresh = await axios.post(SERVER_URL + endpoints.refresh, { email: localStorage.getItem('manager_email') }, config)
+                const refresh = await axios.post(SERVER_URL + endpoints.refresh, { email: localStorage.getItem('manager_email') }, { withCredentials: true })
                 if (refresh.status !== 200) throw new Error({ message: 'Not authorized' })
-                const response = await axios.get(SERVER_URL + endpoints.questionsGroup, config)
+                const response = await axios.get(SERVER_URL + endpoints.questionsGroup, { withCredentials: true })
                 this.groups = response.data
             } catch (e) {
                 console.error(e)

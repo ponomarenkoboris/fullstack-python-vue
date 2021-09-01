@@ -284,7 +284,6 @@ export default {
                 let question = {}
                 this.questionGroups.forEach(group => {
                     const specificQuestion = group.questions.find(question => question.id === +this.selectedQuestion)
-                    console.log(specificQuestion)
                     if (specificQuestion) question = { ...specificQuestion, id: this.quiz.questions.length, question_group: null }
                 })
                 if (question.multiple) {
@@ -306,10 +305,9 @@ export default {
         },
         async fetchQuestionGroups() {
             try {
-                const config = { withCredentials: true, headers: getCSRFTokenHeader() }
-                const refresh = await axios.post(SERVER_URL + endpoints.refresh, { email: localStorage.getItem('manager_email') }, config)
+                const refresh = await axios.post(SERVER_URL + endpoints.refresh, { email: localStorage.getItem('manager_email') }, { withCredentials: true })
                 if (refresh.status !== 200) throw new Error({ message: 'Not authorized' })
-                const response = await axios.get(SERVER_URL + endpoints.questionsGroup, config)
+                const response = await axios.get(SERVER_URL + endpoints.questionsGroup, { withCredentials: true })
                 this.questionGroups = response.data
             } catch (e) {
                 this.raiseAlert('Неудалось соединиться с сервером.')
@@ -349,12 +347,11 @@ export default {
             })
             notReactiveQuiz['publish_date'] = Math.floor(new Date(new Date(this.publishDate).getTime() - 10800000) / 1000)
             try {
-                const config = { withCredentials: true, headers: getCSRFTokenHeader() }
-                const refresh = await axios.post(SERVER_URL + endpoints.refresh, { email: localStorage.getItem('manager_email') }, config)
+                const refresh = await axios.post(SERVER_URL + endpoints.refresh, { email: localStorage.getItem('manager_email') }, { withCredentials: true })
                 if (refresh.status !== 200) throw new Error({ message: 'Not authorized' })
                 const response = await axios.post(SERVER_URL + endpoints.quizList, {
                     ...notReactiveQuiz
-                }, config)
+                }, { withCredentials: true })
                 if (response.status === 200) {
                     this.quiz = {
                         quiz_name: '',

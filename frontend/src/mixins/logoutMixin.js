@@ -1,6 +1,6 @@
 import { mdiExitToApp } from "@mdi/js";
 import axios from "axios";
-import { endpoints, SERVER_URL, getCSRFTokenHeader } from "../utils";
+import { endpoints, SERVER_URL } from "../utils";
 
 const logoutMixin = {
     data: () => ({
@@ -9,8 +9,7 @@ const logoutMixin = {
     methods: {
         async logout() {
             try {
-                const config = { withCredentials: true, headers: getCSRFTokenHeader() }
-                const response = await axios.post(SERVER_URL + endpoints.logout, {}, config)
+                const response = await axios.post(SERVER_URL + endpoints.logout, {}, { withCredentials: true })
                 if (response.status === 200) {
                     localStorage.clear()
                     this.$router.replace('/')

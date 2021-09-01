@@ -1,4 +1,3 @@
-<!-- TODO add styles -->
 <template>
     <v-row justify="center">
         <v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition">
@@ -78,7 +77,7 @@
 </template>
 <script>
 import axios from 'axios'
-import { SERVER_URL, endpoints, getCSRFTokenHeader } from '../utils'
+import { SERVER_URL, endpoints } from '../utils'
 import alertMixin from "../mixins/alert";
 // TODO add styles
 
@@ -132,10 +131,9 @@ export default {
             }
 
             try {
-                const config = { withCredentials: true, headers: getCSRFTokenHeader() }
-                const refresh = await axios.post(SERVER_URL + endpoints.refresh, { email: localStorage.getItem('worker_email') }, config)
+                const refresh = await axios.post(SERVER_URL + endpoints.refresh, { email: localStorage.getItem('worker_email') }, { withCredentials: true })
                 if (refresh.status !== 200) throw new Error({ message: 'Not authorized' })
-                const response = await axios.post(SERVER_URL + endpoints.userGrading, userAnswer, config)
+                const response = await axios.post(SERVER_URL + endpoints.userGrading, userAnswer, { withCredentials: true })
                 if (response.status === 201) {
                     this.dialog = false
                     this.$emit('updatePollsList')
