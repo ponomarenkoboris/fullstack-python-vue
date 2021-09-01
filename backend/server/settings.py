@@ -133,9 +133,9 @@ CORS_ALLOW_METHODS = [
     "DELETE"
 ]
 
-CORS_ALLOWED_ORIGINS = [ # On production
-    'https://quiz-client-app.herokuapp.com'
-]
+# CORS_ALLOWED_ORIGINS = [ # On production
+#     'https://quiz-client-app.herokuapp.com'
+# ]
 
 CORS_ALLOWED_ORIGINS = [ # On development
     'http://127.0.0.1:8080',
