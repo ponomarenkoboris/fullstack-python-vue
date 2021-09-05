@@ -14,8 +14,8 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", 'secret')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.environ.get("DJANGO_DEBUG", True))
 
-# ALLOWED_HOSTS = ['quiz-client-app.herokuapp.com'] # On production
-ALLOWED_HOSTS = [] # On development
+# ALLOWED_HOSTS = ['quiz-client-app.herokuapp.com']  # On production
+ALLOWED_HOSTS = []  # On development
 
 # Application definition
 
@@ -133,11 +133,11 @@ CORS_ALLOW_METHODS = [
     "DELETE"
 ]
 
-# CORS_ALLOWED_ORIGINS = [ # On production
+# CORS_ALLOWED_ORIGINS = [  # On production
 #     'https://quiz-client-app.herokuapp.com'
 # ]
 
-CORS_ALLOWED_ORIGINS = [ # On development
+CORS_ALLOWED_ORIGINS = [  # On development
     'http://127.0.0.1:8080',
     'http://localhost:8080'
 ]

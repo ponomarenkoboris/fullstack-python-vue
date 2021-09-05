@@ -22,14 +22,14 @@ docker run -it -p 8080:8080 --rm --name quiz-client quiz-frontend-root
 npm i -g yarn
 ```
 #### Установка зависимостей
-```
+```shell
 yarn install
 ```
 #### Запуск на локальном сервере в режие разработки
-```
+```shell
 yarn serve
 ```
 #### Сборка проекта 
-```
+```shell
 yarn build
 ```
