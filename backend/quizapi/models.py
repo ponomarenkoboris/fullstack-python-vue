@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
+
 class User(AbstractUser):
     """
     Модель пользователя
@@ -22,6 +23,7 @@ class User(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
+
 class Quiz(models.Model):
     """
     Модель опроса
@@ -38,6 +40,7 @@ class Quiz(models.Model):
     # TODO у опросов должна быть дата публикации, до наступления которой опрос пройти нельзя
     avaliable_date = models.DateTimeField()
 
+
 class QuestionGroup(models.Model):
     """
     Модель группы вопросов
@@ -46,6 +49,7 @@ class QuestionGroup(models.Model):
     """
     group_name = models.CharField(max_length=255, unique=True)
     date_created = models.DateTimeField(auto_now=True, db_index=True)
+
 
 class Question(models.Model):
     """
@@ -59,13 +63,16 @@ class Question(models.Model):
     answer: ответ на вопрос в формате Text
     question_max_grade: максимальный балл за вопрос
     """
-    quiz = models.ForeignKey(Quiz, related_name='questions', on_delete=models.CASCADE, null=True)
+    quiz = models.ForeignKey(
+        Quiz, related_name='questions', on_delete=models.CASCADE, null=True)
     question = models.CharField(max_length=250)
-    question_group = models.ForeignKey(QuestionGroup, related_name='questions', on_delete=models.CASCADE, null=True)
+    question_group = models.ForeignKey(
+        QuestionGroup, related_name='questions', on_delete=models.CASCADE, null=True)
     multiple = models.BooleanField(default=False)
     question_photo = models.TextField(blank=True, default='')
     answer = models.TextField(blank=False)
     question_max_grade = models.IntegerField()
+
 
 class Variant(models.Model):
     """
@@ -75,9 +82,11 @@ class Variant(models.Model):
     variant: вариант ответа на вопрос
     score: оценка за вариант ответа
     """
-    question = models.ForeignKey(Question, related_name='variants', on_delete=models.CASCADE, db_index=True)
+    question = models.ForeignKey(
+        Question, related_name='variants', on_delete=models.CASCADE, db_index=True)
     variant = models.CharField(max_length=30)
     score = models.IntegerField()
+
 
 class UserAnswers(models.Model):
     """
@@ -93,6 +102,7 @@ class UserAnswers(models.Model):
     quiz_name = models.CharField(max_length=250)
     user_grade = models.IntegerField()
     max_grade = models.IntegerField()
+
 
 class QuizStatistic(models.Model):
     """
@@ -111,6 +121,7 @@ class QuizStatistic(models.Model):
     user_grade = models.IntegerField()
     quiz_max_grade = models.IntegerField()
 
+
 class QuestionStatistic(models.Model):
     """
     Модель статистики вопроса
@@ -122,7 +133,8 @@ class QuestionStatistic(models.Model):
     user_grade: оценки пользователя
     question_max_grade: макимальный балл за вопрос
     """
-    quiz_statistic = models.ForeignKey(QuizStatistic, related_name='questions_statistic', on_delete=models.CASCADE)
+    quiz_statistic = models.ForeignKey(
+        QuizStatistic, related_name='questions_statistic', on_delete=models.CASCADE)
     question_name = models.CharField(max_length=250)
     user_answer = models.TextField(blank=True, default='Нет ответа')
     correct_answer = models.TextField()

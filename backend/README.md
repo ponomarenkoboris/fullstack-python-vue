@@ -3,7 +3,7 @@
 ## Скачивание папки проекта из репозитория 
 ```shell
 git clone https://github.com/ponomarenkoboris/fullstack-python-vue.git
-cd backend
+cd fullstack-python-vue/backend
 ```
 ## Запуск проекта с помощью Docker:
 ### Создание образа контейнера
@@ -16,9 +16,25 @@ docker run -p 8000:8000 --rm --name quiz-server quiz-backend-root
 ```
 
 ## Запуск проекта локально: 
+### Установка и активация виртульного окружения: 
+```shell
+python -m venv venv
+cd venv/Scritps/activate.bat
+```
 #### Установка зависимостей
 ```shell
 pip install -r requirements.txt
+```
+### Подготовка к миграции данных
+python manage.py makemigrations
+
+### Миграция моделей данных
+```shell
+python manage.py migrate
+```
+### Загрузка фикстур
+```
+python manage.py loaddata fixtures/initial_data.json
 ```
 #### Запуск
 ```shell

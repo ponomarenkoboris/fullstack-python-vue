@@ -11,6 +11,7 @@ COPY . /backend
 
 RUN python manage.py makemigrations
 RUN python manage.py migrate
+RUN python manage.py loaddata fixtures/initial_data.json
 
 EXPOSE 8080
 CMD ["python", "manage.py", "runserver"]

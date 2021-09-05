@@ -335,7 +335,6 @@ export default {
             const reader = new FileReader()
 
             reader.onload = ev => {
-                console.log(ev.currentTarget.result)
                 this.question.question_photo = ev.currentTarget.result
             }
 

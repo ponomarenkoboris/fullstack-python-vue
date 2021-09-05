@@ -53,7 +53,7 @@
                             v-for="variant in quiz.questions[paginationController - 1].variants"
                             :key="variant.id"
                             :label="variant.variant"
-                            :input-value="quiz.questions[paginationController - 1].answer.find(val => val === variant.variant)"
+                            :input-value="quiz.questions[paginationController - 1].variants.find(val => val === variant.variant)"
                             @click="toggleMultipleAnswer(variant.variant)"
                         ></v-checkbox>
                     </div>
