@@ -21,6 +21,14 @@ docker-compose up
 docker-compose down
 ```
 
+## Тестовые данные для входа в систему:
+
+|         | Сотрудник    | Менеджер      |
+|:-----:  | :----------: | :-----------: |
+|Email    |worker@mail.ru|manager@mail.ru|
+|Password |12345         |12345
+
+
 ## Запуск преокта локально:
 
 Frontend документация: [frontend](frontend/README.md)
